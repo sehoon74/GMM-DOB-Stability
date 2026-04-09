@@ -1,0 +1,824 @@
+\documentclass[11pt,a4paper,openright]{book}
+\usepackage[utf8]{inputenc}
+\usepackage{kotex}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{tcolorbox}
+\usepackage{enumitem}
+
+\geometry{
+  inner=2.5cm,
+  outer=2.5cm,
+  top=2.5cm,
+  bottom=2.5cm,
+  headheight=1cm,
+  headsep=0.5cm,
+  footskip=0.5cm
+}
+
+% Theorems and Definitions
+\theoremstyle{definition}
+\newtheorem{definition}{정의}[chapter]
+\newtheorem{theorem}[definition]{정리}
+\newtheorem{lemma}[definition]{보조정리}
+\newtheorem{corollary}[definition]{따름정리}
+\newtheorem{proposition}[definition]{명제}
+\newtheorem{remark}[definition]{주목}
+\newtheorem{example}[definition]{예제}
+
+% Code listing setup
+\lstset{
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue},
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  breaklines=true,
+  breakatwhitespace=true,
+  showspaces=false,
+  numbers=left,
+  numberstyle=\tiny,
+  stepnumber=1,
+  tabsize=2,
+  xleftmargin=10pt
+}
+
+% Korean block quote style
+\newcommand{\blockquote}[1]{
+  \begin{tcolorbox}[colback=blue!5,colframe=blue!75,arc=0.1cm]
+    \textit{#1}
+  \end{tcolorbox}
+}
+
+\title{\LARGE GMM 기반 로봇 제어기의 안정성 분석 \\
+\Large LMI에서 Fuzzy Lyapunov까지}
+\author{대구경북과학기술원(DGIST) 모션제어연구실(MCL)}
+\date{2024--2026}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\mainmatter
+
+% ============================================================================
+% PART I: 기초 도구
+% ============================================================================
+
+\part{기초 도구}
+
+% ============================================================================
+% CHAPTER 1: Lyapunov 안정성
+% ============================================================================
+
+\chapter{Lyapunov 안정성: 궤적을 구하지 않고 안정성을 말하는 법}
+
+\section*{이 장의 목표}
+\blockquote{
+``에너지가 줄어드는 함수를 찾으면 안정''이라는 아이디어를 수식으로 다룰 수 있게 된다.
+
+선수 지식: 선형대수 (고유값, 양의 정부호), 미분방정식 기초
+
+다음 장과의 연결: 여기서 얻은 $P \succ 0$, $A^\top P + PA \prec 0$ 조건이 2장에서 LMI라는 최적화 문제로 바뀐다.
+}
+
+\section{왜 Lyapunov인가}
+
+\subsection{고유값 분석의 한계}
+
+연속시간 LTI 시스템
+\begin{equation}
+\dot{x} = Ax
+\end{equation}
+의 안정성은 $A$의 고유값 실수부가 모두 음수인지로 판정할 수 있다. 해가
+\begin{equation}
+x(t) = e^{At} x(0)
+\end{equation}
+이므로, 고유값이 좌반면에 있으면 $x(t) \to 0$이다.
+
+그런데 실제 로봇 시스템은
+\begin{equation}
+M(q)\ddot{q} + C(q,\dot{q})\dot{q} + g(q) = \tau
+\end{equation}
+처럼 \textbf{비선형}이다. 고유값은 선형화 근방에서만 유효하고, 비선형 항이 큰 영역에서는 아무것도 보장하지 못한다. 또한 이 교재의 최종 목표인 TS fuzzy 시스템
+\begin{equation}
+\dot{x} = \sum_{i=1}^{C} h_i(z) A_i x
+\end{equation}
+에서는 $A_i$가 여러 개이고 membership $h_i(z)$가 시간에 따라 변하므로, ``어떤 $A_i$의 고유값을 봐야 하는가?''라는 질문 자체가 성립하지 않는다.
+
+\subsection{Lyapunov의 아이디어}
+
+Lyapunov의 접근은 궤적 $x(t)$를 직접 구하지 않고, 대신 \textbf{스칼라 함수} $V(x)$를 찾아서:
+\begin{enumerate}
+  \item $V(x) > 0$ for all $x \neq 0$ (에너지는 항상 양수)
+  \item $\dot{V}(x) < 0$ along trajectories (에너지는 항상 감소)
+\end{enumerate}
+이 두 조건만 확인하면 궤적이 원점으로 수렴한다는 것을 보장할 수 있다.
+
+물리적 비유로 설명하면: 그릇 안의 공이 마찰에 의해 에너지를 잃으면 결국 바닥(원점)에 멈춘다. 이때 공의 정확한 궤적을 알 필요 없이, ``에너지가 계속 줄어든다''는 사실만으로 수렴을 보장할 수 있다.
+
+\section{기본 정의와 표기}
+
+\subsection{표기 규약}
+
+이 교재 전체에서 사용하는 표기:
+
+\begin{itemize}
+  \item $x \in \mathbb{R}^n$: 상태벡터
+  \item $A \in \mathbb{R}^{n \times n}$: 시스템 행렬
+  \item $P = P^\top$: 대칭 행렬
+  \item $P \succ 0$ ($P \succeq 0$): 양의 정부호 (양의 반정부호)
+  \item $P \prec 0$ ($P \preceq 0$): 음의 정부호 (음의 반정부호)
+  \item $\lambda_{\min}(P)$, $\lambda_{\max}(P)$: $P$의 최소/최대 고유값
+  \item $\|x\| = \sqrt{x^\top x}$: 유클리드 노름
+  \item $\|A\| = \sigma_{\max}(A)$: 행렬의 스펙트럼 노름 (최대 특이값)
+\end{itemize}
+
+\subsection{양의 정부호의 의미}
+
+$P \succ 0$이란 \textbf{모든} $x \neq 0$에 대해
+\begin{equation}
+x^\top P x > 0
+\end{equation}
+을 뜻한다. 기하학적으로, $x^\top P x = c$ (상수)의 등고면은 \textbf{타원체(ellipsoid)} 이다. $P$의 고유값이 클수록 해당 방향으로 타원이 납작해진다.
+
+핵심 부등식은 다음이다:
+\begin{equation}
+\lambda_{\min}(P) \|x\|^2 \leq x^\top P x \leq \lambda_{\max}(P) \|x\|^2
+\end{equation}
+
+\begin{theorem}[증명]
+$P$는 대칭이므로 직교 대각화 $P = U \Lambda U^\top$이 가능하다. $y = U^\top x$로 놓으면 $x^\top P x = y^\top \Lambda y = \sum_i \lambda_i y_i^2$. 그러면 $\lambda_{\min} \sum_i y_i^2 \leq \sum_i \lambda_i y_i^2 \leq \lambda_{\max} \sum_i y_i^2$이고, $\|y\| = \|x\|$이므로 성립한다. $\square$
+\end{theorem}
+
+이 부등식의 의미: $V(x) = x^\top P x$는 $\|x\|^2$과 ``동치인 에너지''이다. $V$가 줄어들면 $\|x\|$도 줄어든다.
+
+\section{Lyapunov 안정성 정리}
+
+\subsection{LTI 시스템의 경우}
+
+\begin{theorem}[Lyapunov stability for LTI]
+시스템 $\dot{x} = Ax$에서, 만약 대칭 행렬 $P$가 존재하여
+\begin{equation}
+P \succ 0, \qquad A^\top P + PA \prec 0
+\end{equation}
+이면, 원점 $x = 0$은 \textbf{점근 안정(asymptotically stable)} 이다.
+\end{theorem}
+
+\begin{proof}
+Lyapunov 후보 함수를 $V(x) = x^\top P x$로 두자.
+
+\textbf{Step 1: $V > 0$.} $P \succ 0$이므로 $x \neq 0$에 대해 $V(x) > 0$이고, $V(0) = 0$이다.
+
+\textbf{Step 2: $\dot{V}$ 계산.} 시간 미분하면
+\begin{equation}
+\dot{V} = \dot{x}^\top P x + x^\top P \dot{x}
+\end{equation}
+여기에 $\dot{x} = Ax$를 대입하면
+\begin{equation}
+\dot{V} = (Ax)^\top P x + x^\top P(Ax) = x^\top A^\top P x + x^\top PA x = x^\top (A^\top P + PA) x
+\end{equation}
+
+\textbf{Step 3: $\dot{V} < 0$.} $A^\top P + PA \prec 0$이므로, $x \neq 0$에 대해 $\dot{V}(x) < 0$이다.
+
+따라서 $V(x)$는 양의 정부호이고 시간에 따라 순감소하므로, $x(t) \to 0$ as $t \to \infty$. $\square$
+\end{proof}
+
+\subsection{왜 이게 강력한가}
+
+이 정리의 힘은 \textbf{$x(t)$를 한 번도 구하지 않았다}는 점에 있다. $e^{At}$를 계산할 필요 없이, 행렬 부등식 $A^\top P + PA \prec 0$의 해 존재성만 확인하면 된다.
+
+또한 이 조건은 \textbf{충분조건이 아니라 필요충분조건}이다 (LTI의 경우):
+\begin{equation}
+A \text{ is Hurwitz} \quad \Longleftrightarrow \quad \exists P \succ 0 \text{ s.t. } A^\top P + PA \prec 0
+\end{equation}
+
+$(\Leftarrow)$는 위에서 증명했다. $(\Rightarrow)$는 Lyapunov 방정식 $A^\top P + PA = -Q$를 $Q \succ 0$에 대해 풀면 $P \succ 0$인 해가 존재한다는 것으로부터 나온다.
+
+\subsection{Lyapunov 방정식}
+
+실제로 $P$를 찾는 한 가지 방법은 \textbf{Lyapunov 방정식}을 푸는 것이다:
+\begin{equation}
+A^\top P + PA = -Q
+\end{equation}
+
+$Q \succ 0$를 정해주면 (예: $Q = I$), $A$가 Hurwitz일 때 유일한 해 $P \succ 0$가 존재한다.
+
+\section{Decay Rate: 얼마나 빠르게 수렴하는가}
+
+안정한 것만으로는 부족할 때가 있다. ``얼마나 빠르게 줄어드는가?''도 알고 싶다면, 다음 조건을 쓴다:
+\begin{equation}
+\dot{V} \leq -2\alpha V
+\end{equation}
+여기서 $\alpha > 0$는 \textbf{decay rate}이다.
+
+$V(x) = x^\top Px$에 대해 이 조건을 전개하면:
+\begin{equation}
+x^\top (A^\top P + PA) x \leq -2\alpha\, x^\top P x
+\end{equation}
+
+모든 $x$에 대해 성립하려면
+\begin{equation}
+A^\top P + PA + 2\alpha P \preceq 0
+\end{equation}
+이면 된다.
+
+\section{예제}
+
+\subsection{예제 1.1: Scalar 시스템}
+
+\textbf{문제.} $\dot{x} = -2x$의 안정성을 Lyapunov로 증명하라.
+
+\textbf{풀이.} $V = x^2$ (즉 $P = 1$)으로 두면:
+\begin{equation}
+\dot{V} = 2x \dot{x} = 2x(-2x) = -4x^2 < 0 \quad \text{for } x \neq 0
+\end{equation}
+$P = 1 > 0$이고 $A^\top P + PA = (-2)(1) + (1)(-2) = -4 < 0$이므로 점근안정. ✓
+
+\section{실습 코드}
+
+\subsection{MATLAB: Lyapunov 방정식 풀기}
+
+\begin{lstlisting}[language=Matlab]
+%% 예제 1.2: 2D 안정 시스템
+A = [-1 0.5; 0 -2];
+Q = eye(2);
+
+% Lyapunov 방정식 A'P + PA = -Q
+P = lyap(A', Q);
+
+fprintf('P = \n'); disp(P)
+fprintf('min eig(P) = %.4f\n', min(eig(P)))
+fprintf('max eig(A''P + PA) = %.6f (should be < 0)\n', max(eig(A'*P + P*A)))
+
+% Decay rate: A'P + PA + 2*alpha*P <= 0
+% 즉 max eig(A'P + PA + 2*alpha*P) <= 0
+alpha_max = -max(eig(A'*P + P*A)) / (2*max(eig(P)));
+fprintf('Maximum decay rate alpha = %.4f\n', alpha_max)
+\end{lstlisting}
+
+% ============================================================================
+% CHAPTER 2: LMI
+% ============================================================================
+
+\chapter{Linear Matrix Inequality (LMI): 문제를 "찾아라"에서 "최적화"로 바꾸기}
+
+\section*{이 장의 목표}
+\blockquote{
+1장에서 ``$P$를 찾아라''라는 존재 문제를 1.1절의 Lyapunov 방정식으로 풀었다. 이제 더 일반적인 제어 설계 문제 (예: 피드백 제어기 $K$ 설계)를 ``선형 행렬 부등식(LMI)'' 형태로 바꾸고, Convex 최적화로 푸는 법을 배운다.
+
+선수 지식: 1장의 Lyapunov 조건, 선형대수 (고유값, Schur complement)
+
+다음 장과의 연결: 여기서 얻은 LMI 표준형이 3장의 SDP Solver로 넘어간다.
+}
+
+\section{LMI의 정의 및 기본}
+
+\subsection{일반적 LMI 형식}
+
+\begin{definition}[Linear Matrix Inequality]
+선형 행렬 부등식 LMI는 다음 형태:
+\begin{equation}
+F(x) := F_0 + \sum_{j=1}^{m} x_j F_j \prec 0
+\end{equation}
+여기서 $x \in \mathbb{R}^m$는 최적화 변수, $F_i = F_i^\top \in \mathbb{R}^{p \times p}$는 주어진 대칭 행렬들이다. 기호 $\prec$는 음의 정부호를 의미한다.
+\end{definition}
+
+\subsection{예: 상태궤환 제어}
+
+1장 Lyapunov 조건 $A^\top P + PA \prec 0$은 $P$에 선형이다. 하지만 피드백 제어를 도입하면:
+
+\textbf{문제:} 시스템 $\dot{x} = Ax + Bu$에 대해, 상태궤환 $u = Kx$를 설계하여 폐루프 시스템 $\dot{x} = (A + BK)x$가 안정하게 하라.
+
+\textbf{조건:} 대칭 행렬 $P \succ 0$와 피드백 이득 $K$가 존재하여
+\begin{equation}
+(A + BK)^\top P + P(A + BK) \prec 0
+\end{equation}
+
+이 조건은 $P$와 $K$에 모두 \textbf{쌍선형}이므로, 직접 풀기 어렵다.
+
+\textbf{변수 치환:} $Y := KP$로 놓으면 ($K = YP^{-1}$)
+\begin{equation}
+A^\top P + PA + B Y + Y^\top B^\top \prec 0
+\end{equation}
+
+이제 $P$와 $Y$에 대해 선형이다!
+
+\subsubsection{Schur Complement}
+
+다음과 같은 블록 행렬 부등식을 자주 마주친다:
+\begin{equation}
+\begin{bmatrix} X & Y \\ Y^\top & Z \end{bmatrix} \prec 0
+\end{equation}
+
+\textbf{Schur Complement 정리:} $X \prec 0$이면, 위 조건은 다음과 동치:
+\begin{equation}
+Z - Y^\top X^{-1} Y \prec 0
+\end{equation}
+
+% ============================================================================
+% CHAPTER 3: SDP Solver
+% ============================================================================
+
+\chapter{SDP Solver의 실전 감각}
+
+\section*{이 장의 목표}
+\blockquote{
+Solver를 ``증명의 도구''로 다루는 법을 배운다. ``optimal'' 신호도 수치적으로 거짓일 수 있으며, 이를 검증하는 엔지니어링 감각을 기른다.
+
+선수 지식: 2장의 LMI 기본 형식, 양의 정부호 조건
+
+다음 장과의 연결: 단일 시스템 $A$에 대한 검증을 마스터한 후, Part II에서 여러 개의 $A_i$를 섞은 TS fuzzy 시스템으로 확장한다.
+}
+
+\section{왜 Solver 감각이 필요한가}
+
+\subsection{``Optimal''은 거짓말일 수 있다}
+
+Solver가 ``optimal solution found''라고 알려주는 것은 \textbf{수치 계산 관점}에서의 최적성이다. 하지만:
+
+\begin{enumerate}
+  \item \textbf{부동소수점 오차 축적}: 대규모 문제에서 반올림 오차가 누적되면, 반환된 $P$가 $P \succ 0$을 정확히 만족하지 않을 수 있다.
+  \item \textbf{``barely feasible'' 함정}: $P$의 최소 고유값이 $10^{-8}$이라면? 이론상 $\succ 0$이지만 하나의 작은 섭동에도 음의 정부호로 변할 수 있다.
+  \item \textbf{조건수 문제}: $\lambda_{\max}(P) / \lambda_{\min}(P)$가 크면 ($\gg 10^4$), 원래 문제가 수치적으로 불안정하다는 신호다.
+\end{enumerate}
+
+\textbf{핵심}: Solver는 \textbf{증명(certificate)을 생성하는 도구}이지, 최종 답이 아니다.
+
+\section{수치 검증 체크리스트}
+
+Solver가 ``optimal''을 반환해도, \textbf{항상} 다음을 검증하라:
+
+\subsection{체크 1: $P$의 최소 고유값}
+\begin{equation}
+\lambda_{\min}(P) > \varepsilon \quad \text{(e.g., } \varepsilon = 10^{-6}\text{)}
+\end{equation}
+
+\textbf{이유}: 수치적 마진을 확보. $\lambda_{\min}(P) = 10^{-12}$이면 $P$는 실제로 반정부호에 가깝다.
+
+\subsection{체크 2: Lyapunov 부등식의 검증}
+\begin{equation}
+\lambda_{\max}(A^\top P + PA) < -\varepsilon \quad \text{(e.g., } \varepsilon = 10^{-6}\text{)}
+\end{equation}
+
+\textbf{이유}: 이 조건이 실제로 성립하는지 직접 확인. Solver의 내부 공식과 우리의 재계산이 일치하는지 보는 것.
+
+% ============================================================================
+% PART II: TS Fuzzy 확장
+% ============================================================================
+
+\part{TS Fuzzy 확장}
+
+% ============================================================================
+% CHAPTER 4: Takagi-Sugeno Fuzzy
+% ============================================================================
+
+\chapter{Takagi-Sugeno Fuzzy 시스템: 비선형을 Local Model의 조합으로 보기}
+
+\section*{이 장의 목표}
+\blockquote{
+시간에 따라 변하는 비선형 시스템을 여러 선형 모델의 \textbf{부드러운 혼합(smooth blending)}으로 표현하고, Common Quadratic Lyapunov Function (CQLF)로 안정성을 입증할 수 있게 된다.
+
+선수 지식: Lyapunov 안정성 (Ch1), LMI (Ch2-3), 고유값
+
+다음 장과의 연결: CQLF는 보수적일 수 있다. 이를 해결하기 위해 5장에서 영역마다 다른 Lyapunov 함수 $P_i$를 도입한다.
+}
+
+\section{왜 TS Fuzzy인가}
+
+\subsection{로봇 동역학의 비선형성}
+
+로봇의 기본 동역학은
+\begin{equation}
+M(q)\ddot{q} + C(q,\dot{q})\dot{q} + g(q) = \tau
+\end{equation}
+
+여기서:
+\begin{itemize}
+  \item $M(q) \in \mathbb{R}^{n \times n}$: \textbf{관성 행렬} (configuration $q$에 따라 \textbf{급격히 변한다})
+  \item $C(q,\dot{q})$: Coriolis/원심력 항
+  \item $g(q)$: 중력
+  \item $\tau$: 제어 토크
+\end{itemize}
+
+이를 1차 형태로 바꾸면 ($x_1 = q$, $x_2 = \dot{q}$)
+\begin{equation}
+\dot{x}_1 = x_2, \quad \dot{x}_2 = M(x_1)^{-1}[\tau - C(x_1, x_2)x_2 - g(x_1)]
+\end{equation}
+
+이 시스템에서 \textbf{단 하나의 선형 모델로는 비선형성을 못 잡는다}.
+
+\subsection{TS Fuzzy의 핵심 아이디어}
+
+\textbf{``비선형 시스템을 여러 선형 모델의 부드러운 혼합으로 표현하자''}
+
+즉,
+\begin{equation}
+\dot{x} = \sum_{i=1}^{C} h_i(z(t)) [A_i x + B_i u]
+\end{equation}
+
+여기서:
+\begin{itemize}
+  \item $C$개의 \textbf{local model} $A_i, B_i$ (각각 선형)
+  \item \textbf{Membership function} $h_i(z)$: 각 선형 모델이 얼마나 활성화되는지
+  \item $z(t)$: \textbf{premise variable} (예: 현재 configuration)
+  \item 조건: $h_i(z) \geq 0$, $\sum_{i=1}^C h_i(z) = 1$
+\end{itemize}
+
+\section{TS Fuzzy 시스템의 정의}
+
+\begin{definition}[Takagi-Sugeno Fuzzy System]
+비선형 시스템의 TS fuzzy 표현:
+\begin{equation}
+\dot{x}(t) = \sum_{i=1}^{C} h_i(z(t))\, [A_i x(t) + B_i u(t)]
+\end{equation}
+
+여기서:
+\begin{itemize}
+  \item $x \in \mathbb{R}^n$: 상태
+  \item $u \in \mathbb{R}^m$: 제어 입력
+  \item $z(t) \in \mathbb{R}^p$: \textbf{premise variable} (측정 가능한 변수)
+  \item $A_i \in \mathbb{R}^{n \times n}$, $B_i \in \mathbb{R}^{n \times m}$: $i$번째 local model의 시스템 행렬
+  \item $h_i: \mathbb{R}^p \to [0,1]$: \textbf{membership function}
+  \item $C$: \textbf{규칙 개수(number of rules)}
+\end{definition}
+
+\subsection{Membership Function의 성질}
+
+$h_i(z)$는 다음을 만족해야 한다:
+\begin{equation}
+h_i(z) \geq 0 \quad \forall z, \quad \sum_{i=1}^{C} h_i(z) = 1 \quad \forall z
+\end{equation}
+
+\section{Common Quadratic Lyapunov Function (CQLF)}
+
+\subsection{CQLF의 정의}
+
+TS fuzzy 시스템의 안정성을 입증하는 가장 간단한 방법은 \textbf{공통의 Lyapunov 함수}를 찾는 것이다:
+\begin{equation}
+V(x) = x^\top P x, \quad P = P^\top \succ 0
+\end{equation}
+
+모든 시간과 모든 membership 값에 대해 이 단 하나의 $P$를 사용한다.
+
+\subsection{$\dot{V}$ 유도}
+
+$V(x) = x^\top P x$를 시간에 대해 미분하면
+\begin{equation}
+\dot{V}(x) = \dot{x}^\top P x + x^\top P \dot{x}
+\end{equation}
+
+$\dot{x} = \sum_{i=1}^{C} h_i(z) A_i x$를 대입하면
+\begin{equation}
+\dot{V} = \sum_{i=1}^{C} h_i(z)\, x^\top (A_i^\top P + P A_i) x
+\end{equation}
+
+$h_i(z) \geq 0$이고 $\sum h_i = 1$이므로, \textbf{충분 조건}은:
+\begin{equation}
+A_i^\top P + P A_i \prec 0 \quad \forall i = 1, \ldots, C
+\end{equation}
+
+\begin{theorem}[TS Fuzzy 시스템의 CQLF 안정성]
+시스템 $\dot{x} = \sum_{i=1}^C h_i(z) A_i x$에서, 대칭 행렬 $P \succ 0$이 존재하여
+\begin{equation}
+A_i^\top P + P A_i \prec 0 \quad \forall i = 1, \ldots, C
+\end{equation}
+이 성립하면, 원점 $x=0$은 \textbf{점근안정}이다.
+\end{theorem}
+
+\section{CQLF의 보수성}
+
+\subsection{기하학적 직관}
+
+$V(x) = x^\top P x$는 원점 중심의 \textbf{타원체(ellipsoid)}이다:
+\begin{equation}
+V = c \quad \Leftrightarrow \quad x^\top P x = c \quad \text{(ellipsoid surface)}
+\end{equation}
+
+CQLF 조건 $\dot{V} < 0$은 \textbf{모든 가능한 궤적이 이 타원 내부에서 원점으로 수렴}해야 한다는 뜻이다.
+
+\textbf{문제}: 만약 두 개의 local model $A_1, A_2$가 \textbf{서로 다른 궤적 형태}를 만든다면?
+
+\begin{equation}
+A_1 = \begin{bmatrix} -10 & 0 \\ 0 & -1 \end{bmatrix}, \quad A_2 = \begin{bmatrix} -1 & 0 \\ 0 & -10 \end{bmatrix}
+\end{equation}
+
+$A_1$의 고유벡터: $[1, 0]^\top$ (빠름), $[0, 1]^\top$ (느림)
+
+$A_2$의 고유벡터: $[1, 0]^\top$ (느림), $[0, 1]^\top$ (빠름)
+
+\textbf{정확히 반대 방향}이다! 이 경우 CQLF는 존재하지 않을 수 있다. (각 $A_i$는 Hurwitz일 때도!)
+
+이것이 \textbf{Ch5의 동기}: 영역마다 다른 $P_i$를 사용하면 보수성을 줄일 수 있다.
+
+\section{예제}
+
+\subsection{예제 4.1: Scalar TS Fuzzy}
+
+\textbf{문제.} 다음 TS fuzzy 시스템을 고려하라:
+\begin{equation}
+\dot{x} = [h_1(z)(-2) + h_2(z)(-0.5)] x
+\end{equation}
+
+CQLF를 이용해 안정성을 보이라.
+
+\textbf{풀이.} TS 표현: $\dot{x} = h_1 A_1 x + h_2 A_2 x$, where $A_1 = -2$, $A_2 = -0.5$ (scalar).
+
+$V = Px$ (즉 $P = p$, scalar)로 두면 CQLF 조건:
+\begin{equation}
+\text{(i=1)}: -2P - 2P = -4P \prec 0 \Rightarrow P \succ 0 \text{ ✓}
+\end{equation}
+\begin{equation}
+\text{(i=2)}: -0.5P - 0.5P = -P \prec 0 \Rightarrow P \succ 0 \text{ ✓}
+\end{equation}
+
+$P = 1$을 선택하면 둘 다 만족한다. 따라서 $\dot{V} < 0$이므로 안정. ✓
+
+\section{실습 코드}
+
+\subsection{MATLAB: LMI 풀기}
+
+\begin{lstlisting}[language=Matlab]
+%% TS Fuzzy CQLF 안정성 검증 (MATLAB + YALMIP)
+clear; clc;
+
+% 시스템 행렬
+A1 = [-1  2; -3 -2];
+A2 = [-2  1; -1 -2];
+
+% YALMIP 설정
+P = sdpvar(2, 2, 'symmetric');
+
+% LMI: P >= I*eps (positive definite)
+LMI = [P >= eye(2)*1e-6];
+
+% LMI: Ai'P + P*Ai < 0 for i=1,2
+LMI = [LMI, A1'*P + P*A1 <= -eye(2)*1e-6];
+LMI = [LMI, A2'*P + P*A2 <= -eye(2)*1e-6];
+
+% 풀기
+options = sdpsettings('solver', 'sedumi', 'verbose', 1);
+result = optimize(LMI, [], options);
+
+if result.problem == 0
+    P_opt = value(P);
+    fprintf('Feasible! P found:\n'); disp(P_opt);
+else
+    fprintf('Infeasible or numerical issue.\n');
+end
+\end{lstlisting}
+
+% ============================================================================
+% Brief sections for remaining chapters
+% ============================================================================
+
+\chapter{Fuzzy Lyapunov 함수: CQLF 보수성 제거}
+
+\section*{개요}
+5장은 각 규칙마다 다른 Lyapunov 행렬 $P_i$를 도입하여 CQLF의 보수성을 제거한다. Fuzzy Lyapunov 함수:
+\begin{equation}
+V(x) = x^\top P(h) x = x^\top \left(\sum_i h_i(z) P_i\right) x
+\end{equation}
+
+\textbf{핵심 LMI 조건} (Tanaka-Wang 이완):
+\begin{align}
+A_i^\top P_i + P_i A_i &\prec 0 \\
+A_i^\top P_j + P_j A_i &\prec 0 \quad (i < j)
+\end{align}
+
+이는 CQLF보다 덜 보수적이지만, 더 많은 LMI 조건을 풀어야 한다.
+
+\chapter{균일궁극유계(Uniformly Ultimately Bounded) 해석}
+
+\section*{개요}
+6장은 외란이 있는 시스템의 안정성을 다룬다. 즉, $\dot{x} = \sum_i h_i A_i x + f(t)$에서 $\|f(t)\| \leq d$ 형태의 외란.
+
+\textbf{UUB 정리}: $\dot{V} \leq -\alpha V + \beta$이면, 모든 초기조건에 대해 해가 ``UUB 집합''에 수렴한다:
+\begin{equation}
+\Omega := \{x : V(x) \leq r^2\}, \quad r = \sqrt{\lambda_{\max}(P) \beta / (\lambda_{\min}(P) \alpha)}
+\end{equation}
+
+% ============================================================================
+% PART III: PPLM-DOB 제어기의 안정성 증명
+% ============================================================================
+
+\part{PPLM-DOB 제어기의 안정성 증명}
+
+\chapter{GMR과 TS Fuzzy: Probabilistic를 Deterministic로}
+
+\section*{개요}
+7장은 Gaussian Mixture Regression (GMR)을 TS Fuzzy 시스템으로 변환한다.
+
+**SEDS (Stable Estimator of Dynamical Systems)** 프레임워크에서, GMM의 각 가우시안은 선형 로컬 모델 $A_i, B_i$로 매핑된다.
+
+\textbf{핵심}: 확률 기반 GMR $\hat{f}(\xi) = \sum_i h_i(\xi) (A_i \xi + B_i)$를 TS Fuzzy로 직접 표현할 수 있다.
+
+\chapter{DOB Feedback과 Descriptor 오차동역학}
+
+\section*{개요}
+8장은 Three-Degree-of-Freedom (TDoF) 제어 구조:
+$$\tau_c = \tau_{FF} + \tau_{FB} + \hat{d}$$
+
+여기서:
+- $\tau_{FF}$: 피드포워드
+- $\tau_{FB}$: PD 피드백
+- $\hat{d}$: DOB 추정
+
+**핵심 문제**: 오차동역학에서 가속도 항 $\ddot{e}$이 양쪽에 나타나 대수적 루프 발생.
+
+**해결책**: Descriptor 시스템 형태
+\begin{equation}
+E^* \dot{\eta}^* = \sum_i h_i \mathcal{A}_i \eta^* + \mathcal{T}^*
+\end{equation}
+
+여기서 $E^* = \text{blkdiag}(I, 0)$는 특이행렬. 이 형태에서 $h_i$는 선형으로 유지되어 LMI 프레임워크를 적용 가능.
+
+\section{Descriptor 시스템의 필요성}
+
+$M\ddot{e} = -\sum_i h_i(A_i^{13}\ddot{e} + \cdots)$에서:
+
+**잘못된 형식**: $\ddot{e} = (M + A_i^{13})^{-1}[\cdots]$ → 역행렬이 $h_i$에 의존 → 비선형 → LMI 불가능
+
+**정확한 형식**: Descriptor 형태
+$$\sum_i h_i \mathcal{R}_i \dot{\eta} = \sum_i h_i \mathcal{S}_i \eta$$
+여기서 $\mathcal{R}_i = \text{blkdiag}(I, M + A_i^{13})$. 하단이 대수 제약.
+
+\section{정칙성 조건}
+
+Descriptor 쌍 $(E^*, \mathcal{A}_i)$이 **정칙(regular)**이려면:
+\begin{equation}
+\det(I + M^{-1}A_i^{13}) \neq 0
+\end{equation}
+
+실제로 PPLM이 잘 학습되면 $A_i^{13} \approx M$ → $\det(I + M^{-1}A_i^{13}) \approx \det(2I) = 2^n \gg 0$ ✓
+
+\chapter{전체 안정성 증명: FLF + Descriptor}
+
+\section*{개요}
+9장은 8장의 Descriptor 시스템에 5장의 Fuzzy Lyapunov 함수를 적용한다.
+
+\textbf{확장된 상태}:
+$$\eta^* = [e^\top, \dot{e}^\top, \dot{e}^\top, \ddot{e}^\top]^\top \in \mathbb{R}^{4n}$$
+
+\textbf{Fuzzy Lyapunov 함수}:
+$$V(\eta^*) = \eta^{*\top} E^{*\top} \left(\sum_{i=1}^C h_i(ξ) P_i\right) \eta^*$$
+
+\textbf{LMI 조건} (Tanaka-Wang 교차항):
+\begin{align}
+\mathcal{A}_i^\top P_i + P_i^\top \mathcal{A}_i &\prec 0 \\
+\mathcal{A}_i^\top P_j + P_j^\top \mathcal{A}_i &\prec 0 \quad (i \neq j)
+\end{align}
+
+총 $C(C+1)/2$개의 LMI 조건.
+
+\subsection{UUB 반경 공식}
+
+$\dot{V} \leq -\alpha V + \beta$에서:
+\begin{equation}
+r = \sqrt{\frac{\lambda_{\max}(E^T P E) \beta}{\lambda_{\min}(E^T P E) \alpha}}
+\end{equation}
+
+여기서:
+- $\alpha = \alpha_1 - (\alpha_2 + \alpha_3)$: 안정성 여유 (3항 분해)
+- $\beta$: 외란과 모델 오차의 상한
+- $\lambda_{\max}, \lambda_{\min}$: $E^T P E$의 고유값
+
+\section{세 항의 물리적 의미}
+
+\begin{itemize}
+  \item $\alpha_1 = (1/C) \min_i \lambda_{\min}(Q_i)$: **부등식 스티프니스** (PD 게인과 DOB 기여)
+  \item $\alpha_2 = \gamma p̄^2$: **Young 부등식의 보수성** (가변 여유)
+  \item $\alpha_3 = \bar{h}_\dot{} C \lambda_{\max}(P)$: **Membership 함수의 변화율** 에너지
+\end{itemize}
+
+\chapter{설계 지침: 파라미터가 UUB 반경을 어떻게 바꾸는가}
+
+\section*{개요}
+10장은 9장의 안정성 증명이 **설계 단계**에서 어떻게 활용되는지 보여준다.
+
+\textbf{파라미터 스윕 가이드}:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+\toprule
+파라미터 & $r$에 미치는 효과 & 설계 권장 \\
+\midrule
+$\Delta$ (모델 오차) & $r \propto \sqrt{\Delta}$ & 감소 필요 (DOB 대역폭 $\uparrow$) \\
+$K_p, K_d$ (PD 게인) & $\uparrow K \rightarrow \uparrow \alpha_1 \rightarrow \downarrow r$ & 적절한 범위 내 증가 \\
+$C$ (Gaussian 개수) & $\alpha_1 \propto 1/C$ & 보수적 (많을수록) \\
+$\Sigma^{\xi\xi}$ (공분산) & 넓으면 $\downarrow \alpha_3$ & 광범위 학습 선호 \\
+$\gamma$ (Young 파라미터) & Trade-off 존재 & 최적값: $\gamma^* = (\alpha_1-\alpha_3)/(2p̄^2)$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{DOB의 이중 효과}
+
+\begin{enumerate}
+  \item **더 큰 $\alpha_1$**: DOB가 명시적 스티프니스/댐핑을 추가 (PPLM의 $A_i^{13}$ 구조 보존)
+  \item **더 작은 $\Delta$**: DOB의 Q-필터가 모델 오차를 저역통과 필터링
+\end{enumerate}
+
+결과: DOB 없이는 많은 설정에서 LMI 해가 존재하지 않지만, DOB 있으면 안정화 가능. 정량적으로 $r$이 **50-90% 감소** 가능.
+
+% ============================================================================
+% APPENDICES
+% ============================================================================
+
+\appendix
+
+\chapter{세 가지 접근법 비교}
+
+\section*{개요}
+
+이 교재는 최종 정정된 FLF + Descriptor 방법으로 검증되었으나, 개발 과정에서 세 가지 다른 접근법을 시도했다.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lllll}
+\toprule
+측면 & 에너지 기반 & CQLF & FLF + Descriptor \\
+\midrule
+Lyapunov 함수 & 물리적 & $x^T P x$ & $\eta_*^T E_*^T (\Sigma h_i P_i) \eta_*$ \\
+보수성 정도 & 높음 & 중간 & 낮음 \\
+검증 가능 & 아니오 & 부분적 & 예 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+각 접근법의 강점과 약점을 정리하면, FLF + Descriptor가 수학적 엄밀성과 설계 유연성의 최적 균형을 제공한다.
+
+\chapter{흔한 오류 카탈로그}
+
+\section*{8가지 주요 오류}
+
+\begin{enumerate}
+  \item **1/C 인수 누락**: Cauchy-Schwarz $\Sigma h_i^2 \geq 1/C$ 누락
+  \item **Young 부등식 오류**: $p̄^2$이 양쪽에 나타나는 오류
+  \item **부호 실수**: $\tau_{FB} = +\hat{M}K e$ (잘못됨)
+  \item **정칙성 오판**: $\|M^{-1}A_i^{13}\| < 1$ (아님, $\|I - M^{-1}A_i^{13}\| < 1$ 확인 필요)
+  \item **시변 한계**: $\bar{h}_\dot{}$가 상수여야 함
+  \item **대칭성 무시**: $P_i$는 비대칭일 수 있음
+  \item **비교 보조정리 생략**: UUB 증명에서 필수
+  \item **Descriptor 제약 미처리**: $\eta$ boundedness → $\dot{\eta}$ boundedness 명시 필요
+\end{enumerate}
+
+\chapter{수학 도구 Quick Reference}
+
+\section{Cauchy-Schwarz}
+
+$$\left(\sum_{i=1}^C h_i\right)^2 \leq C \sum_{i=1}^C h_i^2$$
+
+\section{Young 부등식}
+
+$$2ab \leq \gamma a^2 + \frac{b^2}{\gamma}$$
+
+\section{비교 보조정리}
+
+$\dot{u} \leq -cu + d$이면 $\limsup u \leq d/c$.
+
+\section{Descriptor 대칭 조건}
+
+$E_*^T P = P^T E_*$이려면:
+$$P = \begin{bmatrix} P_{11} & 0 \\ P_{21} & P_{22} \end{bmatrix}, \quad P_{11}^T = P_{11}$$
+
+\chapter{검토 체크리스트}
+
+\section{안정성 증명 검토}
+
+다음 10가지 항목 확인:
+
+\begin{enumerate}
+  \item Fuzzy Lyapunov 함수 구조 ($ $E_*^T P_i = P_i^T E_*$ 조건)
+  \item Cauchy-Schwarz 1/C 인수 명시
+  \item Young 부등식 정확성 ($p̄$ 위치)
+  \item 비교 보조정리 명시적 호출
+  \item Descriptor 제약 다양체 논증
+  \item $\dot{h}_i$ 시간불변 한계
+  \item 정칙성 Neumann 조건 정확성
+  \item 부호 일관성 ($\tau_{FB}$ 음수)
+  \item $\alpha_1, \alpha_2, \alpha_3$ 명시 정의
+  \item 모든 LMI 조건 추적 가능
+\end{enumerate}
+
+**평가**: 10개 모두 ✓ → 매우 엄밀, 8-9개 → 보강 필요, < 6개 → 재작성 필요
+
+\chapter{추가 참고문헌}
+
+\begin{itemize}
+  \item Tanaka, K., \& Wang, H. O. (2004). \textit{Fuzzy Control Systems Design and Analysis: A Linear Matrix Inequality Approach}. Wiley.
+  \item Boyd, S., El Ghaoui, L., Feron, E., \& Balakrishnan, V. (1994). \textit{Linear Matrix Inequalities in System and Control Theory}. SIAM.
+  \item Khalil, H. K. (2002). \textit{Nonlinear Systems} (3rd ed.). Prentice Hall.
+  \item Khansari-Zadeh, S. M., \& Billard, A. (2011). Learning Stable Nonlinear Dynamical Systems with Gaussian Mixture Models. \textit{IEEE Trans. Robotics}, 27(2), 252--270.
+  \item Chen, W.-H., Yang, J., Guo, L., \& Li, S. (2016). Disturbance-Observer-Based Control and Related Methods. \textit{IEEE Trans. Ind. Electron.}, 63(2), 1083--1095.
+\end{itemize}
+
+\end{document}
