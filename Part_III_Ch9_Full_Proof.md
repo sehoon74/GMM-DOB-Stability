@@ -161,7 +161,7 @@ $$
 
 ---
 
-## 9.4 Step 3: 시간 미분 $V̇$ 분해 (Lemma)
+## 9.4 Step 3: 시간 미분 $\dot{V}$ 분해 (Lemma)
 
 ### 9.4.1 미분 계산
 
@@ -597,7 +597,7 @@ $$
 V(t) \leq V(0) e^{-ct} + \frac{d}{c}(1 - e^{-ct})
 $$
 
-**증명** (스케치): $V̇ + cV \leq d$. $e^{ct}$를 곱하면:
+**증명** (스케치): $\dot{V} + cV \leq d$. $e^{ct}$를 곱하면:
 
 $$
 \frac{d}{dt}(e^{ct} V) = e^{ct} \dot{V} + c e^{ct} V \leq d e^{ct}
@@ -1159,7 +1159,7 @@ plt.figure(figsize=(12, 5))
 
 plt.subplot(1, 2, 1)
 plt.semilogy(t, V_sim, 'b-', linewidth=1.5, label='V(η(t)) 시뮬레이션')
-plt.semilogy(t, V_bound_exp, 'r--', label='V₀ e^{-αt/λ̄} (지수 감쇠)')
+plt.semilogy(t, V_bound_exp, 'r--', label='V₀ e^{-αt/\bar{\lambda}} (지수 감쇠)')
 plt.axhline(V_bound_steady, color='g', linestyle=':', label=f'정상상태 UUB = {V_bound_steady:.2f}')
 plt.xlabel('Time [s]')
 plt.ylabel('V(η)')

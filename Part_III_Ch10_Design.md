@@ -2,7 +2,7 @@
 
 > **이 장의 목표**: 9장의 안정성 증명이 **"안정하다"**만을 말하는 게 아니라, 설계 파라미터(GMM 개수, DOB 대역폭, PD 게인 등)가 **UUB 반경 $r$을 어떻게 결정하는지** 정량적으로 이해하는 것이다.
 >
-> **선수 지식**: 9장 전체, 특히 UUB 정리와 $r = \sqrt{\frac{\lambdā \beta}{\lambda̲ \alpha}}$ 공식
+> **선수 지식**: 9장 전체, 특히 UUB 정리와 $r = \sqrt{\frac{\bar{\lambda} \beta}{\underline{\lambda} \alpha}}$ 공식
 >
 > **다음 장과의 연결**: 이 지침을 따라 실제 로봇을 제어할 때 어떤 설정이 성능을 개선하는지 알 수 있다.
 
@@ -18,7 +18,7 @@
 
 **답**: $\alpha = \alpha_1 - (\alpha_2 + \alpha_3) > 0$이면 안정하고, UUB 반경은
 $$
-r = \sqrt{\frac{\lambdā_{11} \beta}{\lambda̲_{11} \alpha}}
+r = \sqrt{\frac{\bar{\lambda}_{11} \beta}{\underline{\lambda}_{11} \alpha}}
 $$
 
 그런데 실제 로봇 제어에서 우리가 하고 싶은 질문은:
@@ -54,8 +54,8 @@ $$
 | **$L$ (DOB 대역폭)** | 최적값 존재 | $\uparrow L$: $\downarrow \Delta$ but $\uparrow$ 노이즈 | $L$ 튜닝 필요 |
 | **$K_p, K_d$ (PD)** | $\uparrow K \rightarrow \uparrow \alpha_1 \rightarrow \downarrow r$ | $\alpha_1 = (1/C)\lambda_{\min}(Q_i)$, $Q_i \propto K_p + K_d$ | 과도하면 $\Delta$ 증가 |
 | **$C$ (개수)** | $\alpha_1 \propto 1/C$ | Cauchy-Schwarz: $\Sigma h_i^2 \geq 1/C$ | 더 많은 Gaussian이 보수적 |
-| **$\Sigma^{\xi\xi}$ (공분산)** | 더 크면 $\alpha_3$ 감소 | $\alpha_3 \propto C \cdot \bar{h}_\dot{} \cdot \lambdā_{11}$, 넓은 membership은 느리게 변함 | 광범위 학습 선호 |
-| **$\varepsilon$ (Young 파라미터)** | Trade-off 존재 | $\alpha_2 = \varepsilon p̄^2$ vs $\beta_2 = \Delta^2/\varepsilon$ | 최적 $\varepsilon^* = (\alpha_1 - \alpha_3)/(2p̄^2)$ |
+| **$\Sigma^{\xi\xi}$ (공분산)** | 더 크면 $\alpha_3$ 감소 | $\alpha_3 \propto C \cdot \bar{h}_\dot{} \cdot \bar{\lambda}_{11}$, 넓은 membership은 느리게 변함 | 광범위 학습 선호 |
+| **$\varepsilon$ (Young 파라미터)** | Trade-off 존재 | $\alpha_2 = \varepsilon \bar{p}^2$ vs $\beta_2 = \Delta^2/\varepsilon$ | 최적 $\varepsilon^* = (\alpha_1 - \alpha_3)/(2\bar{p}^2)$ |
 
 ### 10.2.2 예시: 각 파라미터의 정성적 영향
 
@@ -100,12 +100,12 @@ $A_i^{11}, A_i^{12}$은 오직 학습된 명목 모델에만 나타남. 실제 �
 
 ### 10.3.2 DOB 있는 경우
 
-**피드백 토크**: 동일하지만, DOB가 모델 오차 $f̃(\xi)$를 저역통과 필터로 보상:
+**피드백 토크**: 동일하지만, DOB가 모델 오차 $\tilde{f}(\xi)$를 저역통과 필터로 보상:
 $$
-f(\xi) = \tau_{FF} + \tau_{FB} + (1-Q(s))d + Q(s)f̃(\xi)
+f(\xi) = \tau_{FF} + \tau_{FB} + (1-Q(s))d + Q(s)\tilde{f}(\xi)
 $$
 
-DOB 대역폭이 시스템 대역폭보다 크면 $Q(s) \approx 1$ → $f̃(\xi)$ 효과 제거.
+DOB 대역폭이 시스템 대역폭보다 크면 $Q(s) \approx 1$ → $\tilde{f}(\xi)$ 효과 제거.
 
 **로컬 시스템 행렬의 강화**:
 $$
@@ -172,12 +172,12 @@ $$
 
 Young 부등식 적용: $2ab \leq \gamma a^2 + b^2/\gamma$로부터
 $$
-L_2 \leq 2p̄||\eta^*|| \cdot \Delta \leq \varepsilon p̄^2 ||\eta^*||^2 + \frac{\Delta^2}{\varepsilon}
+L_2 \leq 2\bar{p}||\eta^*|| \cdot \Delta \leq \varepsilon \bar{p}^2 ||\eta^*||^2 + \frac{\Delta^2}{\varepsilon}
 $$
 
 따라서:
 $$
-\alpha_2 = \varepsilon p̄^2, \quad \beta = \frac{\Delta^2}{\varepsilon}
+\alpha_2 = \varepsilon \bar{p}^2, \quad \beta = \frac{\Delta^2}{\varepsilon}
 $$
 
 **Trade-off**:
@@ -189,37 +189,37 @@ $$
 안정 조건: $\alpha = \alpha_1 - (\alpha_2 + \alpha_3) > 0$
 
 $$
-\varepsilon p̄^2 + \alpha_3 < \alpha_1
+\varepsilon \bar{p}^2 + \alpha_3 < \alpha_1
 $$
 
 **최적 $\varepsilon$는 UUB 반경**을 최소화:
 
 $$
-r(\varepsilon) = \sqrt{\frac{\lambdā_{11} \Delta^2}{\lambda̲_{11} \varepsilon (\alpha_1 - \alpha_3 - \varepsilon p̄^2)}}
+r(\varepsilon) = \sqrt{\frac{\bar{\lambda}_{11} \Delta^2}{\underline{\lambda}_{11} \varepsilon (\alpha_1 - \alpha_3 - \varepsilon \bar{p}^2)}}
 $$
 
 $\frac{dr}{d\varepsilon} = 0$을 풀면:
 
 $$
-\varepsilon^* = \frac{\alpha_1 - \alpha_3}{2p̄^2}
+\varepsilon^* = \frac{\alpha_1 - \alpha_3}{2\bar{p}^2}
 $$
 
 **해석**:
 - 분자 $\alpha_1 - \alpha_3$: 사용 가능한 안정 여유
-- 분모 $2p̄^2$: 부등식 보수성 정도
+- 분모 $2\bar{p}^2$: 부등식 보수성 정도
 
 ### 10.5.3 최적 반경
 
 $\varepsilon = \varepsilon^*$일 때:
 
 $$
-r_{min} = \sqrt{\frac{\lambdā_{11} \Delta^2}{\lambda̲_{11} \cdot \frac{(\alpha_1-\alpha_3)^2}{4p̄^2}}}
-= \frac{2p̄ \Delta}{\alpha_1 - \alpha_3} \sqrt{\frac{\lambdā_{11}}{\lambda̲_{11}}}
+r_{min} = \sqrt{\frac{\bar{\lambda}_{11} \Delta^2}{\underline{\lambda}_{11} \cdot \frac{(\alpha_1-\alpha_3)^2}{4\bar{p}^2}}}
+= \frac{2\bar{p} \Delta}{\alpha_1 - \alpha_3} \sqrt{\frac{\bar{\lambda}_{11}}{\underline{\lambda}_{11}}}
 $$
 
 **실용 규칙**:
 1. $\alpha_1, \alpha_3$ 계산
-2. $\varepsilon^* = (\alpha_1 - \alpha_3)/(2p̄^2)$ 설정
+2. $\varepsilon^* = (\alpha_1 - \alpha_3)/(2\bar{p}^2)$ 설정
 3. 검증: $\alpha = \alpha_1 - (\alpha_2(\varepsilon^*) + \alpha_3) > 0$인지 확인
 
 ---
@@ -276,13 +276,13 @@ $$
 
 ### 예제 10.4: ε 스윕과 최적값
 
-**시스템**: $\alpha_1 = 100, \alpha_3 = 5, p̄ = 2, \Delta = 1$.
+**시스템**: $\alpha_1 = 100, \alpha_3 = 5, \bar{p} = 2, \Delta = 1$.
 
 **최적값** (공식): $\varepsilon^* = (100-5)/(2 \cdot 4) = 95/8 = 11.875$
 
 **스윕 결과**:
 
-| $\varepsilon$ | $\alpha_2 = \varepsilon p̄^2$ | $\alpha$ | $\beta = \Delta^2/\varepsilon$ | $r$ |
+| $\varepsilon$ | $\alpha_2 = \varepsilon \bar{p}^2$ | $\alpha$ | $\beta = \Delta^2/\varepsilon$ | $r$ |
 |---|---|---|---|---|
 | 5 | 20 | 75 | 0.20 | 0.065 |
 | 10 | 40 | 55 | 0.10 | 0.043 |
@@ -511,7 +511,7 @@ print(f"Min radius r*: {r_opt:.4f} rad")
 > 1. 로봇과 운동 범위로부터 $\Delta$ (모델 오차 한계) 추정
 > 2. DOB 대역폭 $L$ 튜닝 → $\Delta$ 감소
 > 3. PD 게인 $K_p, K_d$ 선택 → $\alpha_1$ 결정
-> 4. Young 파라미터 최적화 $\varepsilon^* = (\alpha_1 - \alpha_3)/(2p̄^2)$
+> 4. Young 파라미터 최적화 $\varepsilon^* = (\alpha_1 - \alpha_3)/(2\bar{p}^2)$
 > 5. LMI 풀이 → $\alpha, \beta$ 확인 → $r$ 계산
 > 
 > 이 과정을 반복하면 **설정 없이도 필요한 추적 정확도를 달성**할 수 있다.

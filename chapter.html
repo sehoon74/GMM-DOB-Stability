@@ -244,6 +244,15 @@ async function loadContent() {
     const resp = await fetch(ch.file + '.md');
     let md = await resp.text();
 
+    // Fix any remaining Unicode combining characters → standard LaTeX
+    md = md.replace(/\u0304/g, '');   // combining macron (strip, handled below)
+    md = md.replace(/\u0332/g, '');   // combining low line (strip, handled below)
+    md = md.replace(/lambda\u0304/g, 'bar{\\lambda}');
+    md = md.replace(/lambda\u0332/g, 'underline{\\lambda}');
+    md = md.replace(/p\u0304/g, 'bar{p}');
+    md = md.replace(/d\u0304/g, 'bar{d}');
+    md = md.replace(/V\u0307/g, 'dot{V}');
+
     // Protect math from marked parser
     const mathBlocks = [];
 

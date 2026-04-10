@@ -13,9 +13,9 @@
 | **Lyapunov 함수** | $V = \frac{1}{2}\dot{e}^T M \dot{e} + \frac{1}{2}e^T K_p e$ | $V = x^T P x$ (단일 P) | $V = \eta_*^T E_*^T (\Sigma h_i P_i) \eta_*$ |
 | **TS fuzzy 구조** | 증명에 미사용 | CQLF로 사용하지만 보수적 | 완전히 활용 (subsystem마다 $P_i$) |
 | **Descriptor 형식** | 언급되었으나 미사용 | 없음 | 적분, DAE 대수 루프 처리 |
-| **DOB 구조** | 손실됨 ($(1-Q)f̃$ 잔여만 남음) | 손실됨 (norm-bounded $\Delta_i$로 축약) | 보존됨 ($R_i, S_i$ 분해) |
+| **DOB 구조** | 손실됨 ($(1-Q)\tilde{f}$ 잔여만 남음) | 손실됨 (norm-bounded $\Delta_i$로 축약) | 보존됨 ($R_i, S_i$ 분해) |
 | **보수성 정도** | 높음 (모델 구조 무시) | 중간 (CQLF가 과도하게 보수적) | 낮음 (Tanaka-Wang 이완) |
-| **UUB 한계** | 모호한 O(d̄) | 명시적이지만 부정확 | 명시적이고 정확 $r = \sqrt{\lambdā\beta/(\lambda̲\alpha)}$ |
+| **UUB 한계** | 모호한 O(\bar{d}) | 명시적이지만 부정확 | 명시적이고 정확 $r = \sqrt{\bar{\lambda}\beta/(\underline{\lambda}\alpha)}$ |
 | **검증 가능성** | 아니오 (K에 대한 조건만) | 부분적 (LMI이지만 단일 P) | 예 (SDP, $C(C+1)/2$ LMI) |
 
 ### A.2 에너지 기반 접근법 (초안1)
@@ -33,9 +33,9 @@ $$
 
 **약점**:
 1. **TS fuzzy 구조 미활용**: Σ $h_i(ξ)$를 전혀 사용하지 않음 → 각 로컬 모델 $A_i$의 강점을 못 씀
-2. **DOB 구조 손실**: 오직 $(1-Q(s))f̃(ξ)$만 잔여에 포함, 즉 DOB의 구체적 구조 불가시적
+2. **DOB 구조 손실**: 오직 $(1-Q(s))\tilde{f}(ξ)$만 잔여에 포함, 즉 DOB의 구체적 구조 불가시적
 3. **Descriptor 시스템 미사용**: $A_i^{13}$으로 인한 대수 루프 처리 미흡
-4. **UUB 한계 모호**: $V̇ \leq -\alpha_1 ||\dot{e}||^2 - \alpha_2 ||e||^2 + \beta \bar{d}^2$ 형태에서 정규화 부족 → $r$의 명시 공식 도출 어려움
+4. **UUB 한계 모호**: $\dot{V} \leq -\alpha_1 ||\dot{e}||^2 - \alpha_2 ||e||^2 + \beta \bar{d}^2$ 형태에서 정규화 부족 → $r$의 명시 공식 도출 어려움
 5. **검증 불가**: LMI 없음, 오직 게인 선택 규칙만 존재
 
 ### A.3 CQLF 접근법 (초안2)
@@ -69,7 +69,7 @@ $$
 2. **Descriptor 시스템 부재**: $A_i^{13}$의 대수 루프 처리 못 함
 3. **DOB 구조 축약**: 모든 불확실성을 norm-bounded $\Delta_i$로 매핑 → 실제 DOB 피드백 구조 (`$R_i, S_i` 분해`) 불가시적
 4. **$\rho$ 정의 모호**: $\rho = c_1 + c_2 + \varepsilon_Q L_f$와 같은 형식은 DOB 대역폭 $L$과의 관계를 명확히 하지 못함
-5. **수학적 오류**: Error Catalog의 Error 2 참조. Young 부등식 적용에서 $p̄^2$이 양쪽에 나타나는 오류 가능
+5. **수학적 오류**: Error Catalog의 Error 2 참조. Young 부등식 적용에서 $\bar{p}^2$이 양쪽에 나타나는 오류 가능
 
 ### A.4 FLF + Descriptor 접근법 (최종, 정정)
 
@@ -90,7 +90,7 @@ $$
 2. **Descriptor 구조**: $E_*$가 특이행렬이지만 정규성 조건 하에서 $\eta_*$는 선택적 차원에서만 자유. 대수 루프 자동 처리
 3. **DOB 명시**: $R_i = [I, 0; 0, M+A_i^{13}]$, $S_i = [0, I; -(A_i^{11}+\hat{M}K_p), -(A_i^{12}+\hat{M}K_d)]$ 형태로 DOB 기여 분해 가능
 4. **Tanaka-Wang 이완**: 교차 항 $A_i^T P_j + P_j^T A_i + A_j^T P_i + P_i^T A_j \preceq 0$ 추가로 추가 이완
-5. **명시적 UUB 한계**: $r = \sqrt{\lambdā \beta / (\lambda̲ \alpha)}$ 공식 유도 가능
+5. **명시적 UUB 한계**: $r = \sqrt{\bar{\lambda} \beta / (\underline{\lambda} \alpha)}$ 공식 유도 가능
 6. **LMI 검증**: $C(C+1)/2$개 조건 × 최대 C개 매개변수 집합 → 수치 해석기로 풀 수 있음
 
 **복잡성**: 의사 결정 변수 많음 ($P_{11,i}, P_{21,i}, P_{22,i}$ per $i$), 4n×4n 크기.
@@ -117,12 +117,12 @@ FLF+Descriptor ──→ 정확하고 통합적이지만 계산복잡
 | # | 오류 | 정정 | 심각도 | 근본 원인 |
 |---|---|---|---|---|
 | **1** | $\alpha_1 = \min_i \lambda_{\min}(Q_i)$ | $\alpha_1 = (1/C) \min_i \lambda_{\min}(Q_i)$ | 🔴 높음 | Cauchy-Schwarz $\Sigma h_i^2 \geq 1/C$ 누락 |
-| **2** | $\alpha_2 = \varepsilon p̄^2$ AND $\beta_2 = p̄^2\Delta^2/\varepsilon$ | $\alpha_2 = \varepsilon p̄^2$, $\beta_2 = \Delta^2/\varepsilon$ | 🟡 중간 | Young 부등식 적용에서 $p̄$이 $a = p̄\|\eta\|$ 에만 흡수 |
+| **2** | $\alpha_2 = \varepsilon \bar{p}^2$ AND $\beta_2 = \bar{p}^2\Delta^2/\varepsilon$ | $\alpha_2 = \varepsilon \bar{p}^2$, $\beta_2 = \Delta^2/\varepsilon$ | 🟡 중간 | Young 부등식 적용에서 $\bar{p}$이 $a = \bar{p}\|\eta\|$ 에만 흡수 |
 | **3** | $\tau_{FB} = +\hat{M}K_p e + \hat{M}K_d \dot{e}$ | $\tau_{FB} = -\hat{M}K_p e - \hat{M}K_d \dot{e}$ | 🟢 낮음 | $e = q - q^d$ 이므로 음의 피드백이어야 함 |
 | **4** | regularity: $\|\|M^{-1}A_i^{13}\|\| < 1$ | regularity: $\|\|I - M^{-1}A_i^{13}\|\| < 1$ | 🟢 낮음 | $A_i^{13} \approx M$ 일 때 Neumann 급수 정확히 적용 |
 | **5** | $\|\dot{h}_i\| \leq f(\|\|\dot{\xi}(t)\|\|)$ (시변) | $\|\dot{h}_i\| \leq \bar{h}_\dot{} = 2\max_k \|\|(\Sigma_k^{\xi\xi})^{-1}\|\| \cdot R_\xi \cdot V_{max}$ | 🟢 낮음 | 시간불변 한계 필요 (Lyapunov 정리 적용 위해) |
 | **6** | $L_2 = 2\eta^T P T$ (P 대칭처럼) | $L_2 = T^T P \eta + \eta^T P^T T = 2\eta^T P^T T$ | 🟢 낮음 | Descriptor Lyapunov 행렬 $P_i$ 비대칭 |
-| **7** | "$V̇ \leq -\alpha\|\|\eta\|\|^2 + \beta$ ⟹ UUB" (건너뜀) | $V̇ \leq -(\alpha/\bar{\lambda})V + \beta$ → 비교 보조정리 → $\limsup V \leq \bar{\lambda}\beta/\alpha$ | 🟡 중간 | 비교 보조정리 명시 누락 |
+| **7** | "$\dot{V} \leq -\alpha\|\|\eta\|\|^2 + \beta$ ⟹ UUB" (건너뜀) | $\dot{V} \leq -(\alpha/\bar{\lambda})V + \beta$ → 비교 보조정리 → $\limsup V \leq \bar{\lambda}\beta/\alpha$ | 🟡 중간 | 비교 보조정리 명시 누락 |
 | **8** | "$\eta$ 유계 ⟹ $\eta_*$ 유계" (정당화 없음) | Descriptor 제약 $\Sigma h_i(S_i\eta - R_i\dot{\eta}) = -T_{*,lower}$ + 정규성 ⟹ $\dot{\eta} = (\Sigma h_i R_i)^{-1}[\Sigma h_i S_i \eta + T_{*,lower}]$, bounded $\eta, T \Rightarrow$ bounded $\dot{\eta} \Rightarrow$ bounded $\eta_*$ | 🟡 중간 | Descriptor 제약 다양체 상의 논증 생략 |
 
 ### B.1 각 오류의 상세 분석
@@ -140,19 +140,19 @@ $\Sigma h_i h_j X_{ij}$에서 대각항만 추출할 때 $\Sigma h_i^2 X_{ii} \g
 
 ---
 
-#### **오류 2: Young 부등식에서 $p̄^2$ 중복** 🟡
+#### **오류 2: Young 부등식에서 $\bar{p}^2$ 중복** 🟡
 
 **식**:
 $$
 2ab \leq \gamma a^2 + \frac{b^2}{\gamma}
 $$
 
-$a = p̄\|\eta_*\|, b = \Delta$로 두면:
+$a = \bar{p}\|\eta_*\|, b = \Delta$로 두면:
 $$
-2p̄\|\eta_*\| \cdot \Delta \leq \varepsilon(p̄\|\eta_*\|)^2 + \frac{\Delta^2}{\varepsilon} = \varepsilon p̄^2\|\eta_*\|^2 + \frac{\Delta^2}{\varepsilon}
+2\bar{p}\|\eta_*\| \cdot \Delta \leq \varepsilon(\bar{p}\|\eta_*\|)^2 + \frac{\Delta^2}{\varepsilon} = \varepsilon \bar{p}^2\|\eta_*\|^2 + \frac{\Delta^2}{\varepsilon}
 $$
 
-**오류**: "$\alpha_2 = \varepsilon p̄^2$ AND $\beta_2 = p̄^2 \Delta^2/\varepsilon$" → 첫 항에만 $p̄^2$ 나타남, 두 번째에는 $p̄$가 없음.
+**오류**: "$\alpha_2 = \varepsilon \bar{p}^2$ AND $\beta_2 = \bar{p}^2 \Delta^2/\varepsilon$" → 첫 항에만 $\bar{p}^2$ 나타남, 두 번째에는 $\bar{p}$가 없음.
 
 **영향**: $r$ 저평가 (실제로는 더 크다).
 
@@ -227,11 +227,11 @@ $$
 
 #### **오류 7: 비교 보조정리 누락** 🟡
 
-**불완전한 증명**: "$V̇ \leq -\alpha\|\eta\|^2 + \beta$ ⟹ UUB"
+**불완전한 증명**: "$\dot{V} \leq -\alpha\|\eta\|^2 + \beta$ ⟹ UUB"
 
 **완전한 증명**:
 $$
-V̇ \leq -\frac{\alpha}{\bar{\lambda}_{11}} V + \beta
+\dot{V} \leq -\frac{\alpha}{\bar{\lambda}_{11}} V + \beta
 $$
 
 **비교 보조정리 (Khalil)**: $\dot{u} \leq -cu + d$이면
@@ -239,7 +239,7 @@ $$
 u(t) \leq u(0)e^{-ct} + \frac{d}{c}(1 - e^{-ct})
 $$
 
-따라서 $\limsup V \leq \bar{\lambda}_{11}\beta/\alpha$, 그러면 $\lambda̲_{11}\|\eta\|^2 \leq V$로부터 $\|\eta\|$ 한계 도출.
+따라서 $\limsup V \leq \bar{\lambda}_{11}\beta/\alpha$, 그러면 $\underline{\lambda}_{11}\|\eta\|^2 \leq V$로부터 $\|\eta\|$ 한계 도출.
 
 **영향**: 중간. 논증이 끝나지 않음.
 
@@ -292,7 +292,7 @@ $$
 
 **증명**: $(γ a - b/γ)^2 \geq 0$ 전개.
 
-**응용**: $L_2$ 항 경계에서 $a = p̄\|\eta\|, b = \Delta$.
+**응용**: $L_2$ 항 경계에서 $a = \bar{p}\|\eta\|, b = \Delta$.
 
 ---
 
@@ -311,7 +311,7 @@ $$
 
 **증명**: $u(t) - d/c$의 Lyapunov 분석.
 
-**응용**: $V̇ \leq -\alpha V + \beta$ → $\limsup V \leq \beta/\alpha$.
+**응용**: $\dot{V} \leq -\alpha V + \beta$ → $\limsup V \leq \beta/\alpha$.
 
 ---
 
@@ -373,9 +373,9 @@ TS fuzzy descriptor 시스템의 안정성 증명을 작성하거나 검토할 �
 
 - [ ] **3. P^T 처리**: $L_2$ bound에서 비대칭 $P_i$에 대해 정확히 $L_2 = 2\eta_*^T P^T T_*$로 표기되었는가 (또는 그 동등 형식)?
 
-- [ ] **4. Young 부등식 정확성**: Young 부등식 $2ab \leq \gamma a^2 + b^2/\gamma$ 적용에서 $p̄$이 한쪽에만 나타나는가? 특히 $\alpha_2 = \gamma p̄^2$, $\beta_2 = \Delta^2/\gamma$ 형태인가?
+- [ ] **4. Young 부등식 정확성**: Young 부등식 $2ab \leq \gamma a^2 + b^2/\gamma$ 적용에서 $\bar{p}$이 한쪽에만 나타나는가? 특히 $\alpha_2 = \gamma \bar{p}^2$, $\beta_2 = \Delta^2/\gamma$ 형태인가?
 
-- [ ] **5. 비교 보조정리**: $V̇ \leq -\alpha V + \beta$로부터 $\limsup V \leq \beta/\alpha$로 도출할 때 비교 보조정리를 명시적으로 호출하는가?
+- [ ] **5. 비교 보조정리**: $\dot{V} \leq -\alpha V + \beta$로부터 $\limsup V \leq \beta/\alpha$로 도출할 때 비교 보조정리를 명시적으로 호출하는가?
 
 - [ ] **6. Descriptor 제약**: Descriptor 시스템의 lower block (대수 제약)에서 $\eta_*$ boundedness를 보장하기 위해 regularity와 제약 다양체 논증을 사용하는가?
 

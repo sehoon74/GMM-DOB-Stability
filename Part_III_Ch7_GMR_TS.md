@@ -505,7 +505,7 @@ print(f"Sum = {h_test[:, 0].sum():.6f} (should be 1.0)")
 def gmr_prediction(xi, gmm, A_matrices, B_matrices):
     """
     주어진 입력 ξ에 대해 GMR 출력 예측
-    τ̂ = Σ h_i (A_i ξ + B_i)
+    \hat{\tau} = Σ h_i (A_i ξ + B_i)
     """
     h = membership_function(xi, gmm)
     tau_pred = np.zeros(len(xi[0]))
