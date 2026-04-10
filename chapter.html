@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loading...</title>
+
+<!-- KaTeX -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+
+<!-- Marked.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.1/marked.min.js"></script>
+
+<!-- Highlight.js -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hl-light">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hl-dark" disabled>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/matlab.min.js"></script>
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #FBFBFD; color: #1D1D1F;
+    line-height: 1.7; transition: background 0.3s, color 0.3s;
+  }
+  body.dark { background: #000; color: #F5F5F7; }
+
+  /* Top bar */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0; height: 48px;
+    background: rgba(251,251,253,0.85);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid #D2D2D7;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px; z-index: 100;
+  }
+  body.dark .topbar { background: rgba(0,0,0,0.85); border-bottom-color: #333; }
+
+  .topbar a {
+    color: #0071E3; text-decoration: none; font-size: 0.9rem; font-weight: 500;
+  }
+  .topbar .title {
+    font-size: 0.9rem; font-weight: 600;
+    color: #1D1D1F; max-width: 50%; overflow: hidden;
+    text-overflow: ellipsis; white-space: nowrap;
+  }
+  body.dark .topbar .title { color: #F5F5F7; }
+
+  .topbar-right { display: flex; gap: 12px; align-items: center; }
+  .topbar button {
+    background: none; border: none; cursor: pointer;
+    font-size: 1.1rem; color: #6E6E73; padding: 4px;
+  }
+
+  /* Progress */
+  .progress {
+    position: fixed; top: 48px; left: 0; height: 3px;
+    background: #0071E3; width: 0%; z-index: 101;
+    transition: width 0.15s;
+  }
+  body.dark .progress { background: #2997ff; }
+
+  /* Content */
+  .content {
+    max-width: 760px; margin: 0 auto;
+    padding: 72px 24px 80px;
+  }
+
+  /* Typography */
+  .content h1 {
+    font-size: 2rem; font-weight: 700; margin: 40px 0 16px;
+    letter-spacing: -0.5px;
+  }
+  .content h2 {
+    font-size: 1.5rem; font-weight: 600; margin: 36px 0 14px;
+    padding-bottom: 8px; border-bottom: 1px solid #D2D2D7;
+  }
+  body.dark .content h2 { border-bottom-color: #333; }
+  .content h3 { font-size: 1.2rem; font-weight: 600; margin: 28px 0 10px; }
+  .content h4 { font-size: 1.05rem; font-weight: 600; margin: 22px 0 8px; }
+
+  .content p { margin: 10px 0; }
+  .content ul, .content ol { margin: 10px 0; padding-left: 28px; }
+  .content li { margin: 4px 0; }
+  .content strong { font-weight: 700; }
+  .content hr { border: none; border-top: 1px solid #D2D2D7; margin: 28px 0; }
+  body.dark .content hr { border-top-color: #333; }
+
+  /* Blockquote */
+  .content blockquote {
+    background: rgba(0,113,227,0.04);
+    border-left: 4px solid #0071E3;
+    padding: 14px 18px; margin: 18px 0;
+    border-radius: 0 10px 10px 0;
+    color: #6E6E73;
+  }
+  body.dark .content blockquote {
+    background: rgba(41,151,255,0.06);
+    border-left-color: #2997ff;
+    color: #A1A1A6;
+  }
+
+  /* Code */
+  .content pre {
+    background: #F5F5F7; border-radius: 10px;
+    padding: 18px 20px; overflow-x: auto;
+    margin: 18px 0; font-size: 0.85rem; line-height: 1.6;
+  }
+  body.dark .content pre { background: #1C1C1E; }
+
+  .content code {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.88em;
+  }
+  .content :not(pre) > code {
+    background: #F5F5F7; padding: 2px 7px; border-radius: 5px;
+  }
+  body.dark .content :not(pre) > code { background: #1C1C1E; }
+
+  /* Table */
+  .content table {
+    border-collapse: collapse; width: 100%; margin: 18px 0;
+    font-size: 0.9rem;
+  }
+  .content th, .content td {
+    border: 1px solid #D2D2D7; padding: 10px 14px; text-align: left;
+  }
+  body.dark .content th, body.dark .content td { border-color: #333; }
+  .content th { background: #F5F5F7; font-weight: 600; }
+  body.dark .content th { background: #1C1C1E; }
+
+  /* KaTeX */
+  .katex-display { overflow-x: auto; overflow-y: hidden; padding: 6px 0; }
+
+  /* Image */
+  .content img { max-width: 100%; border-radius: 8px; }
+
+  /* Chapter nav */
+  .chapter-nav {
+    display: flex; justify-content: space-between; gap: 12px;
+    margin-top: 60px; padding-top: 28px;
+    border-top: 1px solid #D2D2D7;
+  }
+  body.dark .chapter-nav { border-top-color: #333; }
+
+  .chapter-nav a {
+    display: block; flex: 1; max-width: 48%;
+    background: #F5F5F7; border-radius: 12px;
+    padding: 16px 20px; text-decoration: none;
+    color: #1D1D1F; transition: background 0.2s;
+  }
+  body.dark .chapter-nav a { background: #1C1C1E; color: #F5F5F7; }
+  .chapter-nav a:hover { background: #E8E8ED; }
+  body.dark .chapter-nav a:hover { background: #2C2C2E; }
+  .chapter-nav .nav-label { font-size: 0.75rem; color: #86868B; margin-bottom: 4px; }
+  .chapter-nav .nav-title { font-size: 0.9rem; font-weight: 600; }
+  .chapter-nav .next { text-align: right; }
+
+  /* Loading */
+  .loading {
+    text-align: center; padding: 120px 0;
+    color: #86868B; font-size: 1rem;
+  }
+  .spinner {
+    width: 32px; height: 32px; border: 3px solid #D2D2D7;
+    border-top-color: #0071E3; border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 600px) {
+    .content { padding: 60px 16px 60px; }
+    .content h1 { font-size: 1.5rem; }
+    .content h2 { font-size: 1.25rem; }
+    .chapter-nav { flex-direction: column; }
+    .chapter-nav a { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html">&larr; 목차로</a>
+  <span class="title" id="topTitle"></span>
+  <div class="topbar-right">
+    <button onclick="toggleDark()" title="다크모드">&#9789;</button>
+  </div>
+</div>
+<div class="progress" id="progress"></div>
+
+<div class="content" id="content">
+  <div class="loading">
+    <div class="spinner"></div>
+    불러오는 중...
+  </div>
+</div>
+
+<script>
+const chapters = [
+  { file: 'Part_I_Ch1_Lyapunov', title: 'Ch 1. Lyapunov 안정성' },
+  { file: 'Part_I_Ch2_LMI', title: 'Ch 2. LMI: Convex Optimization' },
+  { file: 'Part_I_Ch3_SDP_Solver', title: 'Ch 3. SDP Solver 실습' },
+  { file: 'Part_II_Ch4_TS_Fuzzy', title: 'Ch 4. T-S 퍼지 시스템' },
+  { file: 'Part_II_Ch5_FLF', title: 'Ch 5. Fuzzy Lyapunov Function' },
+  { file: 'Part_II_Ch6_UUB', title: 'Ch 6. UUB 분석' },
+  { file: 'Part_III_Ch7_GMR_TS', title: 'Ch 7. GMR ↔ TS 등가성' },
+  { file: 'Part_III_Ch8_Descriptor', title: 'Ch 8. DOB 기술자 시스템' },
+  { file: 'Part_III_Ch9_Full_Proof', title: 'Ch 9. 완전 UUB 증명' },
+  { file: 'Part_III_Ch10_Design', title: 'Ch 10. 설계 지침' },
+  { file: 'Appendices', title: '부록' }
+];
+
+const params = new URLSearchParams(window.location.search);
+const chFile = params.get('ch');
+const currentIdx = chapters.findIndex(c => c.file === chFile);
+
+// Configure marked
+marked.setOptions({
+  highlight: function(code, lang) {
+    if (lang && hljs.getLanguage(lang)) {
+      return hljs.highlight(code, { language: lang }).value;
+    }
+    return hljs.highlightAuto(code).value;
+  },
+  gfm: true
+});
+
+async function loadContent() {
+  if (currentIdx < 0) {
+    document.getElementById('content').innerHTML =
+      '<div class="loading">챕터를 찾을 수 없습니다. <a href="index.html">목차로 돌아가기</a></div>';
+    return;
+  }
+
+  const ch = chapters[currentIdx];
+  document.title = ch.title + ' — GMM-DOB Stability';
+  document.getElementById('topTitle').textContent = ch.title;
+
+  try {
+    const resp = await fetch(ch.file + '.md');
+    let md = await resp.text();
+
+    // Protect math from marked parser
+    const mathBlocks = [];
+
+    // Display math $$...$$
+    md = md.replace(/\$\$([\s\S]*?)\$\$/g, (m, p1) => {
+      const id = mathBlocks.length;
+      mathBlocks.push({ display: true, tex: p1 });
+      return `<MATH_${id}>`;
+    });
+
+    // Inline math $...$  (avoid $$ and currency like $10)
+    md = md.replace(/(?<!\$)\$(?!\$)([^\$\n]+?)\$/g, (m, p1) => {
+      const id = mathBlocks.length;
+      mathBlocks.push({ display: false, tex: p1 });
+      return `<MATH_${id}>`;
+    });
+
+    let html = marked.parse(md);
+
+    // Render math
+    mathBlocks.forEach((block, id) => {
+      const placeholder = `<MATH_${id}>`;
+      // Also handle cases where marked wraps it in <p> tags
+      const pWrapped = `<p>${placeholder}</p>`;
+      try {
+        const rendered = katex.renderToString(block.tex.trim(), {
+          displayMode: block.display,
+          throwOnError: false,
+          trust: true
+        });
+        if (block.display) {
+          html = html.split(pWrapped).join(rendered);
+        }
+        html = html.split(placeholder).join(rendered);
+      } catch (e) {
+        html = html.split(pWrapped).join(`<code>${block.tex}</code>`);
+        html = html.split(placeholder).join(`<code>${block.tex}</code>`);
+      }
+    });
+
+    // Chapter navigation
+    let nav = '<div class="chapter-nav">';
+    if (currentIdx > 0) {
+      const prev = chapters[currentIdx - 1];
+      nav += `<a href="chapter.html?ch=${prev.file}">
+        <div class="nav-label">&larr; 이전</div>
+        <div class="nav-title">${prev.title}</div>
+      </a>`;
+    } else {
+      nav += '<span></span>';
+    }
+    if (currentIdx < chapters.length - 1) {
+      const next = chapters[currentIdx + 1];
+      nav += `<a href="chapter.html?ch=${next.file}" class="next">
+        <div class="nav-label">다음 &rarr;</div>
+        <div class="nav-title">${next.title}</div>
+      </a>`;
+    } else {
+      nav += '<span></span>';
+    }
+    nav += '</div>';
+
+    document.getElementById('content').innerHTML = html + nav;
+
+    // Highlight remaining code blocks
+    document.querySelectorAll('pre code').forEach(block => {
+      hljs.highlightElement(block);
+    });
+
+  } catch (e) {
+    document.getElementById('content').innerHTML =
+      `<div class="loading">파일 로드 실패: ${ch.file}.md<br>${e.message}<br><a href="index.html">목차로 돌아가기</a></div>`;
+  }
+}
+
+// Dark mode
+function toggleDark() {
+  document.body.classList.toggle('dark');
+  const isDark = document.body.classList.contains('dark');
+  document.getElementById('hl-light').disabled = isDark;
+  document.getElementById('hl-dark').disabled = !isDark;
+  localStorage.setItem('dark', isDark ? '1' : '0');
+}
+
+// Restore dark mode preference
+if (localStorage.getItem('dark') === '1') {
+  document.body.classList.add('dark');
+  document.getElementById('hl-light').disabled = true;
+  document.getElementById('hl-dark').disabled = false;
+}
+
+// Progress bar
+window.addEventListener('scroll', () => {
+  const pct = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+  document.getElementById('progress').style.width = Math.min(pct, 100) + '%';
+});
+
+loadContent();
+</script>
+</body>
+</html>

@@ -1,465 +1,256 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GMM DOB 안정성 분석 교과서</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GMM-DOB Stability Analysis — Interactive Textbook</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #FBFBFD; color: #1D1D1F;
+    line-height: 1.6;
+  }
 
-    <!-- KaTeX -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+  /* Hero */
+  .hero {
+    background: #000; color: #F5F5F7;
+    padding: 80px 40px; text-align: center;
+  }
+  .hero h1 { font-size: 2.8rem; font-weight: 700; margin-bottom: 12px; }
+  .hero .sub { color: #A1A1A6; font-size: 1.1rem; max-width: 640px; margin: 0 auto 30px; }
+  .hero .badge {
+    display: inline-block; padding: 6px 16px; border-radius: 20px;
+    background: #0071E3; color: #fff; font-size: 0.8rem; font-weight: 600;
+    letter-spacing: 1px; margin: 0 6px 8px;
+  }
 
-    <!-- Marked.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.1/marked.min.js"></script>
+  /* Container */
+  .container { max-width: 900px; margin: 0 auto; padding: 60px 24px; }
+  h2 { font-size: 1.6rem; color: #1D1D1F; margin-bottom: 24px; }
 
-    <!-- Highlight.js -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/matlab.min.js"></script>
+  /* Part labels */
+  .part-label {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 1.5px;
+    color: #86868B; text-transform: uppercase;
+    margin: 40px 0 16px; padding-bottom: 8px;
+    border-bottom: 1px solid #D2D2D7;
+  }
+  .part-label:first-of-type { margin-top: 0; }
 
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+  /* Card grid */
+  .card-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  .card {
+    background: #fff; border-radius: 16px; padding: 28px 32px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    text-decoration: none; color: inherit;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: block;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  }
+  .card .tag {
+    display: inline-block; padding: 3px 10px; border-radius: 6px;
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px;
+    margin-bottom: 10px; color: #fff;
+  }
+  .card h3 { font-size: 1.15rem; margin-bottom: 6px; }
+  .card p { color: #6E6E73; font-size: 0.9rem; }
+  .card .time { color: #0071E3; font-weight: 600; font-size: 0.85rem; margin-top: 8px; }
 
-        :root {
-            --bg: #ffffff;
-            --text: #1d1d1f;
-            --accent: #0071e3;
-            --card: #f5f5f7;
-            --border: #e0e0e0;
-            --code-bg: #f5f5f7;
-            --blockquote: rgba(0,0,0,0.05);
-        }
+  /* Part colors */
+  .part1 .tag { background: #BF5AF2; }
+  .part2 .tag { background: #FF9F0A; }
+  .part3 .tag { background: #0071E3; }
+  .appendix .tag { background: #32D74B; }
 
-        body.dark {
-            --bg: #000000;
-            --text: #f5f5f7;
-            --accent: #2997ff;
-            --card: #1d1d1f;
-            --border: #333;
-            --code-bg: #1d1d1f;
-            --blockquote: rgba(255,255,255,0.05);
-        }
+  /* Resources */
+  .resources { margin-top: 48px; }
+  .res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+  .res-card {
+    background: #F5F5F7; border-radius: 12px; padding: 24px;
+    text-align: center; text-decoration: none; color: #1D1D1F;
+    transition: background 0.2s;
+  }
+  .res-card:hover { background: #E8E8ED; }
+  .res-card .icon { font-size: 2rem; margin-bottom: 8px; }
+  .res-card .label { font-weight: 600; font-size: 0.9rem; }
+  .res-card .desc { color: #6E6E73; font-size: 0.8rem; margin-top: 4px; }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            line-height: 1.7;
-            background: var(--bg);
-            color: var(--text);
-            transition: background 0.3s, color 0.3s;
-        }
+  /* Dependency diagram */
+  .diagram {
+    background: #fff; border-radius: 16px; padding: 32px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    margin-top: 32px; overflow-x: auto;
+  }
+  .diagram pre {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.85rem; line-height: 1.8; color: #6E6E73;
+    white-space: pre;
+  }
 
-        /* Navbar */
-        .navbar {
-            position: fixed; top: 0; left: 0; right: 0;
-            height: 52px;
-            background: rgba(255,255,255,0.8);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0 20px;
-            z-index: 100;
-        }
-        body.dark .navbar { background: rgba(0,0,0,0.8); }
+  /* Footer */
+  footer {
+    text-align: center; padding: 40px 20px; color: #86868B; font-size: 0.85rem;
+    border-top: 1px solid #D2D2D7; margin-top: 60px;
+  }
+  footer a { color: #0071E3; text-decoration: none; }
 
-        .navbar-brand {
-            font-size: 17px; font-weight: 600;
-            cursor: pointer; color: var(--text); text-decoration: none;
-        }
-
-        .navbar-controls { display: flex; gap: 8px; }
-        .navbar-controls button {
-            background: none; border: 1px solid var(--border);
-            border-radius: 6px; padding: 4px 10px;
-            cursor: pointer; font-size: 14px; color: var(--text);
-        }
-
-        /* Sidebar */
-        .sidebar {
-            position: fixed; top: 52px; left: -300px; bottom: 0;
-            width: 280px; background: var(--bg);
-            border-right: 1px solid var(--border);
-            overflow-y: auto; transition: left 0.3s;
-            z-index: 90; padding: 16px;
-        }
-        .sidebar.open { left: 0; }
-
-        .sidebar h4 {
-            font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
-            color: var(--accent); margin: 20px 0 8px; padding: 0;
-        }
-        .sidebar h4:first-child { margin-top: 0; }
-
-        .sidebar a {
-            display: block; padding: 6px 10px; margin: 2px 0;
-            color: var(--text); text-decoration: none;
-            border-radius: 6px; font-size: 14px; cursor: pointer;
-        }
-        .sidebar a:hover, .sidebar a.active { background: var(--card); color: var(--accent); }
-
-        /* Main content */
-        .main { max-width: 800px; margin: 0 auto; padding: 72px 24px 60px; }
-
-        /* Home */
-        #home {
-            text-align: center;
-            padding-top: 60px;
-            padding-bottom: 40px;
-        }
-        #home h1 { font-size: 42px; font-weight: 700; margin-bottom: 12px; }
-        #home .subtitle { font-size: 18px; opacity: 0.7; margin-bottom: 32px; }
-
-        .toc-grid {
-            display: grid; grid-template-columns: 1fr 1fr;
-            gap: 12px; text-align: left; margin-top: 24px;
-        }
-        .toc-card {
-            background: var(--card); border-radius: 10px;
-            padding: 16px; cursor: pointer;
-            border: 1px solid transparent;
-            transition: border-color 0.2s, transform 0.2s;
-        }
-        .toc-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-        .toc-card .ch-num { font-size: 12px; color: var(--accent); font-weight: 600; }
-        .toc-card .ch-title { font-size: 15px; font-weight: 600; margin-top: 4px; }
-        .toc-card .ch-desc { font-size: 13px; opacity: 0.6; margin-top: 4px; }
-
-        .part-label {
-            grid-column: 1 / -1;
-            font-size: 13px; font-weight: 600;
-            color: var(--accent); margin-top: 16px;
-            padding-bottom: 4px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        /* Chapter content */
-        #content { display: none; }
-        #content.active { display: block; }
-        #home.hidden { display: none; }
-
-        #content h1 { font-size: 30px; font-weight: 700; margin: 36px 0 16px; }
-        #content h2 { font-size: 24px; font-weight: 600; margin: 32px 0 14px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-        #content h3 { font-size: 20px; font-weight: 600; margin: 28px 0 10px; }
-        #content h4 { font-size: 17px; font-weight: 600; margin: 20px 0 8px; }
-        #content p { margin: 10px 0; }
-        #content ul, #content ol { margin: 10px 0; padding-left: 28px; }
-        #content li { margin: 4px 0; }
-
-        #content blockquote {
-            background: var(--blockquote);
-            border-left: 4px solid var(--accent);
-            padding: 12px 16px; margin: 16px 0;
-            border-radius: 0 8px 8px 0;
-        }
-
-        #content pre {
-            background: var(--code-bg);
-            padding: 16px; border-radius: 8px;
-            overflow-x: auto; margin: 16px 0;
-            font-size: 14px; line-height: 1.5;
-        }
-
-        #content code {
-            font-family: 'SF Mono', 'Fira Code', monospace;
-            font-size: 14px;
-        }
-
-        #content :not(pre) > code {
-            background: var(--code-bg);
-            padding: 2px 6px; border-radius: 4px;
-        }
-
-        #content table {
-            border-collapse: collapse; width: 100%; margin: 16px 0;
-            font-size: 14px;
-        }
-        #content th, #content td {
-            border: 1px solid var(--border);
-            padding: 8px 12px; text-align: left;
-        }
-        #content th { background: var(--card); font-weight: 600; }
-
-        #content hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
-
-        #content img { max-width: 100%; border-radius: 8px; }
-
-        /* Chapter nav */
-        .chapter-nav {
-            display: flex; justify-content: space-between;
-            margin-top: 48px; padding-top: 24px;
-            border-top: 1px solid var(--border);
-        }
-        .chapter-nav button {
-            padding: 10px 20px; background: var(--card);
-            border: 1px solid var(--border); border-radius: 8px;
-            cursor: pointer; font-size: 14px; color: var(--text);
-            transition: background 0.2s;
-        }
-        .chapter-nav button:hover { background: var(--accent); color: white; border-color: var(--accent); }
-
-        /* KaTeX display */
-        .katex-display { overflow-x: auto; overflow-y: hidden; padding: 4px 0; }
-
-        /* Loading */
-        .loading { text-align: center; padding: 60px; opacity: 0.5; }
-
-        @media (max-width: 768px) {
-            #home h1 { font-size: 28px; }
-            .toc-grid { grid-template-columns: 1fr; }
-            .main { padding: 60px 16px 40px; }
-        }
-    </style>
+  @media (max-width: 600px) {
+    .hero { padding: 48px 20px; }
+    .hero h1 { font-size: 1.8rem; }
+    .hero .sub { font-size: 0.95rem; }
+    .card { padding: 20px 24px; }
+  }
+</style>
 </head>
 <body>
-    <nav class="navbar">
-        <a class="navbar-brand" onclick="goHome()">GMM DOB 안정성</a>
-        <div class="navbar-controls">
-            <button onclick="toggleSidebar()" id="menuBtn">&#9776;</button>
-            <button onclick="toggleDark()" id="darkBtn">&#9789;</button>
-        </div>
-    </nav>
 
-    <div class="sidebar" id="sidebar">
-        <h4>시작</h4>
-        <a onclick="goHome()">홈</a>
+<div class="hero">
+  <h1>GMM-DOB 안정성 해석</h1>
+  <p class="sub">Lyapunov 이론, LMI, TS 퍼지 기술자 시스템을 통해<br>
+  GMM/GMR 기반 비선형 제어기의 안정성을 기초부터 완전 증명까지</p>
+  <div>
+    <span class="badge">10 CHAPTERS</span>
+    <span class="badge">3 PARTS</span>
+    <span class="badge">INTERACTIVE</span>
+  </div>
+</div>
 
-        <h4>Part I - 기초 도구</h4>
-        <a onclick="loadChapter(0)">Ch 1. Lyapunov 안정성</a>
-        <a onclick="loadChapter(1)">Ch 2. LMI (선형행렬부등식)</a>
-        <a onclick="loadChapter(2)">Ch 3. SDP 솔버 실습</a>
+<div class="container">
 
-        <h4>Part II - TS 퍼지 안정성</h4>
-        <a onclick="loadChapter(3)">Ch 4. T-S 퍼지 시스템</a>
-        <a onclick="loadChapter(4)">Ch 5. Fuzzy Lyapunov Function</a>
-        <a onclick="loadChapter(5)">Ch 6. UUB 분석</a>
+  <h2>Interactive Chapters</h2>
 
-        <h4>Part III - GMM-DOB 응용</h4>
-        <a onclick="loadChapter(6)">Ch 7. GMR ↔ TS 등가성</a>
-        <a onclick="loadChapter(7)">Ch 8. DOB 기술자 시스템</a>
-        <a onclick="loadChapter(8)">Ch 9. 완전 안정성 증명</a>
-        <a onclick="loadChapter(9)">Ch 10. 설계 지침</a>
+  <!-- Part I -->
+  <div class="part-label">Part I — 기초 도구</div>
+  <div class="card-grid">
+    <a href="chapter.html?ch=Part_I_Ch1_Lyapunov" class="card part1">
+      <span class="tag">CHAPTER 1</span>
+      <h3>Lyapunov 안정성 — 궤적을 구하지 않고 안정성을 말하는 법</h3>
+      <p>V > 0, dV/dt < 0 기본 정리, 양의 정부호 행렬, LaSalle 불변 원리, Phase Portrait</p>
+    </a>
 
-        <h4>부록</h4>
-        <a onclick="loadChapter(10)">부록</a>
+    <a href="chapter.html?ch=Part_I_Ch2_LMI" class="card part1">
+      <span class="tag">CHAPTER 2</span>
+      <h3>LMI — 안정성 질문을 Convex Optimization으로 바꾸기</h3>
+      <p>Schur 보조정리, 합동변환, BMI → LMI 변수치환, Convex Feasibility</p>
+    </a>
+
+    <a href="chapter.html?ch=Part_I_Ch3_SDP_Solver" class="card part1">
+      <span class="tag">CHAPTER 3</span>
+      <h3>SDP Solver의 실전 감각</h3>
+      <p>YALMIP / CVXPy 실습, SeDuMi / MOSEK 비교, 수치 검증 기법</p>
+    </a>
+  </div>
+
+  <!-- Part II -->
+  <div class="part-label">Part II — TS 퍼지 안정성</div>
+  <div class="card-grid">
+    <a href="chapter.html?ch=Part_II_Ch4_TS_Fuzzy" class="card part2">
+      <span class="tag">CHAPTER 4</span>
+      <h3>Takagi-Sugeno 퍼지 시스템 — 비선형을 Local Model의 조합으로</h3>
+      <p>섹터 비선형성, 멤버십 함수, CQLF (공통 Lyapunov), 보수성 분석</p>
+    </a>
+
+    <a href="chapter.html?ch=Part_II_Ch5_FLF" class="card part2">
+      <span class="tag">CHAPTER 5</span>
+      <h3>Fuzzy Lyapunov Function — 영역마다 다른 에너지 함수</h3>
+      <p>FLF 이중합 조건, Tanaka-Wang 완화, Cauchy-Schwarz 1/C 기법, dh/dt 바운드</p>
+    </a>
+
+    <a href="chapter.html?ch=Part_II_Ch6_UUB" class="card part2">
+      <span class="tag">CHAPTER 6</span>
+      <h3>UUB — 외란이 있을 때의 현실적 안정성</h3>
+      <p>Young 부등식, 비교 보조정리, dV → V → ||eta|| 체인, Ultimate Bound 계산</p>
+    </a>
+  </div>
+
+  <!-- Part III -->
+  <div class="part-label">Part III — GMM-DOB 응용</div>
+  <div class="card-grid">
+    <a href="chapter.html?ch=Part_III_Ch7_GMR_TS" class="card part3">
+      <span class="tag">CHAPTER 7</span>
+      <h3>GMM/GMR 기초와 TS Fuzzy로의 재해석</h3>
+      <p>GMM 기초, 조건부 기대값, A_i 물리적 해석, dh_i 바운드 유도</p>
+    </a>
+
+    <a href="chapter.html?ch=Part_III_Ch8_Descriptor" class="card part3">
+      <span class="tag">CHAPTER 8</span>
+      <h3>DOB Feedback과 Descriptor 오차동역학</h3>
+      <p>DOB 피드백 구성, 오차 동역학 유도, E* = blkdiag(I, 0) 기술자 형태</p>
+    </a>
+
+    <a href="chapter.html?ch=Part_III_Ch9_Full_Proof" class="card part3">
+      <span class="tag">CHAPTER 9</span>
+      <h3>전체 UUB 증명 — 5단계 완전 유도</h3>
+      <p>L1/L2/L3 바운드, FLF 구성, LMI 조건 유도, 비교 보조정리 적용</p>
+    </a>
+
+    <a href="chapter.html?ch=Part_III_Ch10_Design" class="card part3">
+      <span class="tag">CHAPTER 10</span>
+      <h3>설계 지침 — 파라미터가 UUB 반경을 어떻게 바꾸는가</h3>
+      <p>파라미터 → UUB 반경 매핑, DOB 이중 이점, epsilon 최적화 전략</p>
+    </a>
+  </div>
+
+  <!-- Appendix -->
+  <div class="part-label">Appendices</div>
+  <div class="card-grid">
+    <a href="chapter.html?ch=Appendices" class="card appendix">
+      <span class="tag">APPENDIX</span>
+      <h3>부록 — 비교, 오류 카탈로그, 체크리스트</h3>
+      <p>3가지 접근법 비교, 8개 흔한 오류 카탈로그, 논문 작성 체크리스트</p>
+    </a>
+  </div>
+
+  <!-- Dependency Diagram -->
+  <div class="diagram">
+    <h3 style="font-size: 1rem; margin-bottom: 16px;">Chapter Dependency</h3>
+    <pre>Ch1 (Lyapunov) ──→ Ch2 (LMI) ──→ Ch3 (SDP)
+       │                │              │
+       ▼                ▼              ▼
+     Ch4 (TS Fuzzy) → Ch5 (FLF) → Ch6 (UUB)
+       │                │              │
+       ▼                ▼              ▼
+     Ch7 (GMR↔TS) → Ch8 (Descriptor) → Ch9 (Full Proof) → Ch10 (Design)</pre>
+  </div>
+
+  <!-- Resources -->
+  <div class="resources">
+    <h2>Resources</h2>
+    <div class="res-grid">
+      <a href="textbook_interactive.html" class="res-card">
+        <div class="icon">📖</div>
+        <div class="label">Interactive Textbook</div>
+        <div class="desc">전체 교재 (올인원 HTML)</div>
+      </a>
+      <a href="textbook_GMM_DOB_Stability.tex" class="res-card">
+        <div class="icon">📝</div>
+        <div class="label">LaTeX Source</div>
+        <div class="desc">컴파일용 .tex 파일</div>
+      </a>
+      <a href="README.md" class="res-card">
+        <div class="icon">📋</div>
+        <div class="label">README</div>
+        <div class="desc">교재 구조 · 목차 · 핵심 결과</div>
+      </a>
+      <a href="https://github.com/sehoon74/GMM-DOB-Stability" class="res-card">
+        <div class="icon">⚙️</div>
+        <div class="label">GitHub Repo</div>
+        <div class="desc">소스 코드 전체</div>
+      </a>
     </div>
+  </div>
 
-    <div class="main">
-        <div id="home">
-            <h1>GMM-DOB 안정성 해석</h1>
-            <p class="subtitle">Lyapunov 이론부터 완전 UUB 증명까지</p>
+</div>
 
-            <div class="toc-grid">
-                <div class="part-label">Part I - 기초 도구</div>
-                <div class="toc-card" onclick="loadChapter(0)">
-                    <div class="ch-num">Chapter 1</div>
-                    <div class="ch-title">Lyapunov 안정성</div>
-                    <div class="ch-desc">V > 0, dV/dt < 0 기본 정리</div>
-                </div>
-                <div class="toc-card" onclick="loadChapter(1)">
-                    <div class="ch-num">Chapter 2</div>
-                    <div class="ch-title">선형행렬부등식 (LMI)</div>
-                    <div class="ch-desc">Schur 보조정리, 합동변환</div>
-                </div>
-                <div class="toc-card" onclick="loadChapter(2)">
-                    <div class="ch-num">Chapter 3</div>
-                    <div class="ch-title">SDP 솔버 실습</div>
-                    <div class="ch-desc">YALMIP/CVXPy, 수치 검증</div>
-                </div>
+<footer>
+  DGIST Motion Control Lab · Sehoon Oh ·
+  <a href="mailto:sehoon74@gmail.com">sehoon74@gmail.com</a><br>
+  GMM-DOB Stability Analysis based on TS Fuzzy Descriptor Systems
+</footer>
 
-                <div class="part-label">Part II - TS 퍼지 안정성</div>
-                <div class="toc-card" onclick="loadChapter(3)">
-                    <div class="ch-num">Chapter 4</div>
-                    <div class="ch-title">T-S 퍼지 시스템</div>
-                    <div class="ch-desc">섹터 비선형성, CQLF</div>
-                </div>
-                <div class="toc-card" onclick="loadChapter(4)">
-                    <div class="ch-num">Chapter 5</div>
-                    <div class="ch-title">Fuzzy Lyapunov Function</div>
-                    <div class="ch-desc">FLF 이중합, Tanaka-Wang 완화</div>
-                </div>
-                <div class="toc-card" onclick="loadChapter(5)">
-                    <div class="ch-num">Chapter 6</div>
-                    <div class="ch-title">UUB 분석</div>
-                    <div class="ch-desc">Young 부등식, 비교 보조정리</div>
-                </div>
-
-                <div class="part-label">Part III - GMM-DOB 응용</div>
-                <div class="toc-card" onclick="loadChapter(6)">
-                    <div class="ch-num">Chapter 7</div>
-                    <div class="ch-title">GMR ↔ TS 등가성</div>
-                    <div class="ch-desc">GMM 기초, 조건부 기대값</div>
-                </div>
-                <div class="toc-card" onclick="loadChapter(7)">
-                    <div class="ch-num">Chapter 8</div>
-                    <div class="ch-title">DOB 기술자 시스템</div>
-                    <div class="ch-desc">DOB 피드백, 오차 동역학</div>
-                </div>
-                <div class="toc-card" onclick="loadChapter(8)">
-                    <div class="ch-num">Chapter 9</div>
-                    <div class="ch-title">완전 안정성 증명</div>
-                    <div class="ch-desc">5단계 UUB 증명</div>
-                </div>
-                <div class="toc-card" onclick="loadChapter(9)">
-                    <div class="ch-num">Chapter 10</div>
-                    <div class="ch-title">설계 지침</div>
-                    <div class="ch-desc">파라미터 → UUB 반경 매핑</div>
-                </div>
-            </div>
-        </div>
-
-        <div id="content"></div>
-    </div>
-
-    <script>
-        const chapters = [
-            { file: 'Part_I_Ch1_Lyapunov.md', title: 'Ch 1. Lyapunov 안정성' },
-            { file: 'Part_I_Ch2_LMI.md', title: 'Ch 2. LMI' },
-            { file: 'Part_I_Ch3_SDP_Solver.md', title: 'Ch 3. SDP 솔버' },
-            { file: 'Part_II_Ch4_TS_Fuzzy.md', title: 'Ch 4. T-S 퍼지' },
-            { file: 'Part_II_Ch5_FLF.md', title: 'Ch 5. FLF' },
-            { file: 'Part_II_Ch6_UUB.md', title: 'Ch 6. UUB' },
-            { file: 'Part_III_Ch7_GMR_TS.md', title: 'Ch 7. GMR↔TS' },
-            { file: 'Part_III_Ch8_Descriptor.md', title: 'Ch 8. Descriptor' },
-            { file: 'Part_III_Ch9_Full_Proof.md', title: 'Ch 9. 완전 증명' },
-            { file: 'Part_III_Ch10_Design.md', title: 'Ch 10. 설계 지침' },
-            { file: 'Appendices.md', title: '부록' }
-        ];
-
-        let currentIdx = -1;
-        const cache = {};
-
-        // Configure marked
-        marked.setOptions({
-            highlight: function(code, lang) {
-                if (lang && hljs.getLanguage(lang)) {
-                    return hljs.highlight(code, { language: lang }).value;
-                }
-                return hljs.highlightAuto(code).value;
-            },
-            breaks: false,
-            gfm: true
-        });
-
-        async function loadChapter(idx) {
-            currentIdx = idx;
-            const ch = chapters[idx];
-            const homeEl = document.getElementById('home');
-            const contentEl = document.getElementById('content');
-
-            homeEl.classList.add('hidden');
-            contentEl.classList.add('active');
-            contentEl.innerHTML = '<div class="loading">불러오는 중...</div>';
-            window.scrollTo({ top: 0 });
-
-            // Update sidebar active
-            document.querySelectorAll('.sidebar a').forEach((a, i) => {
-                a.classList.toggle('active', i === idx + 1); // +1 for "홈"
-            });
-
-            try {
-                let md;
-                if (cache[idx]) {
-                    md = cache[idx];
-                } else {
-                    const resp = await fetch(ch.file);
-                    md = await resp.text();
-                    cache[idx] = md;
-                }
-
-                // Protect math blocks from marked
-                const mathBlocks = [];
-                // Display math $$...$$
-                md = md.replace(/\$\$([\s\S]*?)\$\$/g, (match, p1) => {
-                    const id = mathBlocks.length;
-                    mathBlocks.push({ display: true, content: p1 });
-                    return `%%MATH_BLOCK_${id}%%`;
-                });
-                // Inline math $...$
-                md = md.replace(/\$([^\$\n]+?)\$/g, (match, p1) => {
-                    const id = mathBlocks.length;
-                    mathBlocks.push({ display: false, content: p1 });
-                    return `%%MATH_BLOCK_${id}%%`;
-                });
-
-                let html = marked.parse(md);
-
-                // Restore math blocks
-                mathBlocks.forEach((block, id) => {
-                    const placeholder = `%%MATH_BLOCK_${id}%%`;
-                    try {
-                        const rendered = katex.renderToString(block.content.trim(), {
-                            displayMode: block.display,
-                            throwOnError: false,
-                            trust: true
-                        });
-                        html = html.split(placeholder).join(rendered);
-                    } catch (e) {
-                        const fallback = block.display
-                            ? `<div class="katex-display">${block.content}</div>`
-                            : `<span>${block.content}</span>`;
-                        html = html.split(placeholder).join(fallback);
-                    }
-                });
-
-                // Chapter navigation
-                let nav = '<div class="chapter-nav">';
-                if (idx > 0) {
-                    nav += `<button onclick="loadChapter(${idx - 1})">&larr; ${chapters[idx - 1].title}</button>`;
-                } else {
-                    nav += '<span></span>';
-                }
-                if (idx < chapters.length - 1) {
-                    nav += `<button onclick="loadChapter(${idx + 1})">${chapters[idx + 1].title} &rarr;</button>`;
-                } else {
-                    nav += '<span></span>';
-                }
-                nav += '</div>';
-
-                contentEl.innerHTML = html + nav;
-
-                // Highlight any remaining code blocks
-                contentEl.querySelectorAll('pre code').forEach(block => {
-                    hljs.highlightElement(block);
-                });
-
-            } catch (e) {
-                contentEl.innerHTML = `<p>파일을 불러올 수 없습니다: ${ch.file}</p><p>${e.message}</p>`;
-            }
-
-            closeSidebar();
-        }
-
-        function goHome() {
-            currentIdx = -1;
-            document.getElementById('home').classList.remove('hidden');
-            document.getElementById('content').classList.remove('active');
-            document.getElementById('content').innerHTML = '';
-            document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
-            closeSidebar();
-            window.scrollTo({ top: 0 });
-        }
-
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
-        }
-
-        function closeSidebar() {
-            document.getElementById('sidebar').classList.remove('open');
-        }
-
-        function toggleDark() {
-            document.body.classList.toggle('dark');
-            const isDark = document.body.classList.contains('dark');
-            document.getElementById('darkBtn').textContent = isDark ? '☀' : '☽';
-        }
-
-        // Handle hash navigation
-        if (window.location.hash) {
-            const idx = parseInt(window.location.hash.replace('#ch', '')) - 1;
-            if (idx >= 0 && idx < chapters.length) loadChapter(idx);
-        }
-    </script>
 </body>
 </html>
