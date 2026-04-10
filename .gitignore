@@ -1,0 +1,16 @@
+# Claude local settings
+.claude/settings.local.json
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.xdv
