@@ -280,19 +280,19 @@ $$
 모든 i에 대한 통합 상한은:
 
 $$
-\bar{h}_{\dot{}} = 2 \max_{k} \left\| (\Sigma_k^{\xi\xi})^{-1} \right\| \cdot R_\xi \cdot V_{\max}
+\bar{\dot{h}} = 2 \max_{k} \left\| (\Sigma_k^{\xi\xi})^{-1} \right\| \cdot R_\xi \cdot V_{\max}
 $$
 
 ### 7.6.3 이것이 중요한 이유
 
-**일반적인 TS fuzzy의 경우**: $\bar{h}_{\dot{}}$를 **가정**해야 한다. 즉, "소속 함수의 도함수가 이 정도로 유계라고 가정하자"라고 미리 정하고 증명을 진행한다.
+**일반적인 TS fuzzy의 경우**: $\bar{\dot{h}}$를 **가정**해야 한다. 즉, "소속 함수의 도함수가 이 정도로 유계라고 가정하자"라고 미리 정하고 증명을 진행한다.
 
-**GMR의 경우**: $\bar{h}_{\dot{}}$를 **계산**할 수 있다. 훈련된 GMM의 공분산 $\Sigma_i^{\xi\xi}$와 작동 영역 규격 $R_\xi, V_{\max}$로부터 명시적으로 값을 구할 수 있다.
+**GMR의 경우**: $\bar{\dot{h}}$를 **계산**할 수 있다. 훈련된 GMM의 공분산 $\Sigma_i^{\xi\xi}$와 작동 영역 규격 $R_\xi, V_{\max}$로부터 명시적으로 값을 구할 수 있다.
 
 또한, 공분산이 크면 (넓은 가우시안):
 
 $$
-\Sigma_i^{\xi\xi} \text{가 크다} \Rightarrow (\Sigma_i^{\xi\xi})^{-1} \text{가 작다} \Rightarrow \bar{h}_{\dot{}} \text{가 작다}
+\Sigma_i^{\xi\xi} \text{가 크다} \Rightarrow (\Sigma_i^{\xi\xi})^{-1} \text{가 작다} \Rightarrow \bar{\dot{h}} \text{가 작다}
 $$
 
 즉, **더 넓은 가우시안을 가질수록, 소속 함수가 천천히 변하므로 안정성 마진이 커진다**. 이것도 8장에서 중요한 설계 지표가 된다.
@@ -567,7 +567,7 @@ plt.savefig('ch7_membership_surfaces.png', dpi=150)
 plt.show()
 ```
 
-### 7.9.3 $\bar{h}_{\dot{}}$ (소속 함수 도함수 상한) 계산
+### 7.9.3 $\bar{\dot{h}}$ (소속 함수 도함수 상한) 계산
 
 ```python
 def compute_membership_derivative_bound(gmm, R_xi, V_max):

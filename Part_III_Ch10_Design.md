@@ -54,7 +54,7 @@ $$
 | **$L$ (DOB 대역폭)** | 최적값 존재 | $\uparrow L$: $\downarrow \Delta$ but $\uparrow$ 노이즈 | $L$ 튜닝 필요 |
 | **$K_p, K_d$ (PD)** | $\uparrow K \rightarrow \uparrow \alpha_1 \rightarrow \downarrow r$ | $\alpha_1 = (1/C)\lambda_{\min}(Q_i)$, $Q_i \propto K_p + K_d$ | 과도하면 $\Delta$ 증가 |
 | **$C$ (개수)** | $\alpha_1 \propto 1/C$ | Cauchy-Schwarz: $\Sigma h_i^2 \geq 1/C$ | 더 많은 Gaussian이 보수적 |
-| **$\Sigma^{\xi\xi}$ (공분산)** | 더 크면 $\alpha_3$ 감소 | $\alpha_3 \propto C \cdot \bar{h}_\dot{} \cdot \bar{\lambda}_{11}$, 넓은 membership은 느리게 변함 | 광범위 학습 선호 |
+| **$\Sigma^{\xi\xi}$ (공분산)** | 더 크면 $\alpha_3$ 감소 | $\alpha_3 \propto C \cdot \bar{\dot{h}} \cdot \bar{\lambda}_{11}$, 넓은 membership은 느리게 변함 | 광범위 학습 선호 |
 | **$\varepsilon$ (Young 파라미터)** | Trade-off 존재 | $\alpha_2 = \varepsilon \bar{p}^2$ vs $\beta_2 = \Delta^2/\varepsilon$ | 최적 $\varepsilon^* = (\alpha_1 - \alpha_3)/(2\bar{p}^2)$ |
 
 ### 10.2.2 예시: 각 파라미터의 정성적 영향

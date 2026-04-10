@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \":*)",
+      "Bash(where pdflatex:*)",
+      "Read(//c//**)",
+      "Bash(/dev/null -iname pdflatex.exe)",
+      "Bash(/dev/null -iname xelatex.exe)"
+    ]
+  }
+}

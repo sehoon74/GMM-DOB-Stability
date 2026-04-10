@@ -120,7 +120,7 @@ FLF+Descriptor ──→ 정확하고 통합적이지만 계산복잡
 | **2** | $\alpha_2 = \varepsilon \bar{p}^2$ AND $\beta_2 = \bar{p}^2\Delta^2/\varepsilon$ | $\alpha_2 = \varepsilon \bar{p}^2$, $\beta_2 = \Delta^2/\varepsilon$ | 🟡 중간 | Young 부등식 적용에서 $\bar{p}$이 $a = \bar{p}\|\eta\|$ 에만 흡수 |
 | **3** | $\tau_{FB} = +\hat{M}K_p e + \hat{M}K_d \dot{e}$ | $\tau_{FB} = -\hat{M}K_p e - \hat{M}K_d \dot{e}$ | 🟢 낮음 | $e = q - q^d$ 이므로 음의 피드백이어야 함 |
 | **4** | regularity: $\|\|M^{-1}A_i^{13}\|\| < 1$ | regularity: $\|\|I - M^{-1}A_i^{13}\|\| < 1$ | 🟢 낮음 | $A_i^{13} \approx M$ 일 때 Neumann 급수 정확히 적용 |
-| **5** | $\|\dot{h}_i\| \leq f(\|\|\dot{\xi}(t)\|\|)$ (시변) | $\|\dot{h}_i\| \leq \bar{h}_\dot{} = 2\max_k \|\|(\Sigma_k^{\xi\xi})^{-1}\|\| \cdot R_\xi \cdot V_{max}$ | 🟢 낮음 | 시간불변 한계 필요 (Lyapunov 정리 적용 위해) |
+| **5** | $\|\dot{h}_i\| \leq f(\|\|\dot{\xi}(t)\|\|)$ (시변) | $\|\dot{h}_i\| \leq \bar{\dot{h}} = 2\max_k \|\|(\Sigma_k^{\xi\xi})^{-1}\|\| \cdot R_\xi \cdot V_{max}$ | 🟢 낮음 | 시간불변 한계 필요 (Lyapunov 정리 적용 위해) |
 | **6** | $L_2 = 2\eta^T P T$ (P 대칭처럼) | $L_2 = T^T P \eta + \eta^T P^T T = 2\eta^T P^T T$ | 🟢 낮음 | Descriptor Lyapunov 행렬 $P_i$ 비대칭 |
 | **7** | "$\dot{V} \leq -\alpha\|\|\eta\|\|^2 + \beta$ ⟹ UUB" (건너뜀) | $\dot{V} \leq -(\alpha/\bar{\lambda})V + \beta$ → 비교 보조정리 → $\limsup V \leq \bar{\lambda}\beta/\alpha$ | 🟡 중간 | 비교 보조정리 명시 누락 |
 | **8** | "$\eta$ 유계 ⟹ $\eta_*$ 유계" (정당화 없음) | Descriptor 제약 $\Sigma h_i(S_i\eta - R_i\dot{\eta}) = -T_{*,lower}$ + 정규성 ⟹ $\dot{\eta} = (\Sigma h_i R_i)^{-1}[\Sigma h_i S_i \eta + T_{*,lower}]$, bounded $\eta, T \Rightarrow$ bounded $\dot{\eta} \Rightarrow$ bounded $\eta_*$ | 🟡 중간 | Descriptor 제약 다양체 상의 논증 생략 |
@@ -187,7 +187,7 @@ $$
 
 ---
 
-#### **오류 5: 시변 $\bar{h}_\dot{}$ 한계** 🟢
+#### **오류 5: 시변 $\bar{\dot{h}}$ 한계** 🟢
 
 **잘못된 형식**: $\|\dot{h}_i(ξ(t))\| \leq f(\|\dot{\xi}(t)\|)$ (시간에 따라 변함)
 
@@ -379,7 +379,7 @@ TS fuzzy descriptor 시스템의 안정성 증명을 작성하거나 검토할 �
 
 - [ ] **6. Descriptor 제약**: Descriptor 시스템의 lower block (대수 제약)에서 $\eta_*$ boundedness를 보장하기 위해 regularity와 제약 다양체 논증을 사용하는가?
 
-- [ ] **7. ḣ_i 한계**: $|\dot{h}_i|$의 bound가 시간불변 상수 $\bar{h}_\dot{}$로 주어졌는가? 또는 적응 Lyapunov 이론이 명시되었는가?
+- [ ] **7. ḣ_i 한계**: $|\dot{h}_i|$의 bound가 시간불변 상수 $\bar{\dot{h}}$로 주어졌는가? 또는 적응 Lyapunov 이론이 명시되었는가?
 
 - [ ] **8. Neumann 급수 조건**: 정규성 조건을 $\|I - M^{-1}A_i^{13}\| < 1$로 표기하였는가 (NOT $\|M^{-1}A_i^{13}\| < 1$)?
 
