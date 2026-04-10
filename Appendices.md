@@ -15,7 +15,7 @@
 | **Descriptor 형식** | 언급되었으나 미사용 | 없음 | 적분, DAE 대수 루프 처리 |
 | **DOB 구조** | 손실됨 ($(1-Q)\tilde{f}$ 잔여만 남음) | 손실됨 (norm-bounded $\Delta_i$로 축약) | 보존됨 ($R_i, S_i$ 분해) |
 | **보수성 정도** | 높음 (모델 구조 무시) | 중간 (CQLF가 과도하게 보수적) | 낮음 (Tanaka-Wang 이완) |
-| **UUB 한계** | 모호한 O(\bar{d}) | 명시적이지만 부정확 | 명시적이고 정확 $r = \sqrt{\bar{\lambda}\beta/(\underline{\lambda}\alpha)}$ |
+| **UUB 한계** | 모호한 $O(\bar{d})$ | 명시적이지만 부정확 | 명시적이고 정확 $r = \sqrt{\bar{\lambda}\beta/(\underline{\lambda}\alpha)}$ |
 | **검증 가능성** | 아니오 (K에 대한 조건만) | 부분적 (LMI이지만 단일 P) | 예 (SDP, $C(C+1)/2$ LMI) |
 
 ### A.2 에너지 기반 접근법 (초안1)
